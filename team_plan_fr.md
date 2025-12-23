@@ -80,6 +80,7 @@
 *   **Ruth (Front Lead)** :
     *   Affiner la responsivité mobile pour la Recherche & Accueil.
     *   Implémenter les "Loading Skeletons" pour une meilleure UX.
+    *   Construire l'interface UI du "Tableau de Bord Admin" (Stats & Logs).
 *   **Amadou** :
     *   Construire la page "Détails de l'Offre" (Description, Affichage des méta-données).
     *   Implémenter la fonctionnalité "Partager l'Offre".

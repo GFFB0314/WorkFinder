@@ -80,6 +80,7 @@
 *   **Ruth (Front Lead)**:
     *   Refine Mobile responsiveness for Search & Home.
     *   Implement "Loading Skeletons" for better UX.
+    *   Build "Admin Dashboard" UI Layout (Stats & Ingestion Logs).
 *   **Amadou**:
     *   Build "Job Details" page (Description, Meta-data display).
     *   Implement "Share Job" functionality.
