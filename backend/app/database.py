@@ -1,11 +1,30 @@
+"""
+Database Configuration Module
+
+This module configures the SQLAlchemy database connection and session management
+for the WorkFinder application.
+
+Components:
+    - engine: SQLAlchemy engine instance
+    - SessionLocal: Session factory for database operations
+    - Base: Declarative base for ORM models
+    - get_db(): Dependency injection for FastAPI routes
+    - init_db(): Initialize database tables
+
+Environment Variables:
+    DATABASE_URL: Database connection string (default: sqlite:///./workfinder.db)
+"""
 from typing import Generator
 from sqlalchemy import create_engine
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./workfinder.db")
+# Determine the base directory (backend folder)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "workfinder.db")
+
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
 
 connect_args = {}
 if "sqlite" in SQLALCHEMY_DATABASE_URL:
@@ -17,9 +36,32 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db() -> Generator:
-
+    """
+    Database session dependency for FastAPI routes.
+    
+    Yields:
+        Session: SQLAlchemy database session
+    
+    Example:
+        @app.get("/items")
+        def read_items(db: Session = Depends(get_db)):
+            return db.query(Item).all()
+    """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+def init_db():
+    """
+    Initialize database tables.
+    
+    Creates all tables defined in models.py if they don't exist.
+    Safe to call multiple times (won't recreate existing tables).
+    
+    Note:
+        Must import models to register them with Base before creating tables.
+    """
+    from app import models  # Import models to register them with Base
+    Base.metadata.create_all(bind=engine)

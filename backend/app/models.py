@@ -77,6 +77,7 @@ class Watchlist(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     keywords = Column(JSON, nullable=False)
     frequency = Column(String, default="daily")  # 'daily', 'weekly'
+    last_notified_at = Column(TIMESTAMP, nullable=True)  # Track last notification time
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
 

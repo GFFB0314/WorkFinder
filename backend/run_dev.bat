@@ -1,0 +1,3 @@
+@echo off
+echo Starting WorkFinder API...
+uvicorn app.main:app --reload

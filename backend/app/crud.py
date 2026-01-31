@@ -117,6 +117,14 @@ def create_job(db: Session, job: schemas.JobCreate) -> models.Job:
     hash_string = f"{job.title.lower().strip()}|{job.company.lower().strip()}"
     normalized_hash = hashlib.md5(hash_string.encode()).hexdigest()
     
+    # Deduplication Check
+    # We choose to return the existing job if found, to simulate "Get or Create" behavior
+    # This prevents integrity errors and keeps the DB clean
+    from app.services.deduplication import check_is_duplicate
+    existing_job = check_is_duplicate(db, job.title, job.company, normalized_hash)
+    if existing_job:
+        return existing_job
+    
     db_job = models.Job(
         title=job.title,
         company=job.company,
@@ -234,6 +242,55 @@ def delete_source(db: Session, source_id: int) -> bool:
     if not db_source:
         return False
     
-    db.delete(db_source)
+
+# ============================================================================
+# User CRUD Operations
+# ============================================================================
+
+def get_user(db: Session, user_id: int) -> Optional[models.User]:
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
+    return db.query(models.User).filter(models.User.email == email).first()
+
+def create_user(db: Session, email: str, password_hash: str, role: str = "user") -> models.User:
+    db_user = models.User(
+        email=email, 
+        password_hash=password_hash,
+        role=role
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+# ============================================================================
+# Watchlist CRUD Operations
+# ============================================================================
+
+def get_watchlists_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[models.Watchlist]:
+    return db.query(models.Watchlist).filter(models.Watchlist.user_id == user_id).offset(skip).limit(limit).all()
+
+def create_watchlist(db: Session, watchlist: schemas.WatchlistCreate, user_id: int) -> models.Watchlist:
+    db_watchlist = models.Watchlist(
+        user_id=user_id,
+        keywords=watchlist.keywords,
+        frequency=watchlist.frequency
+    )
+    db.add(db_watchlist)
+    db.commit()
+    db.refresh(db_watchlist)
+    return db_watchlist
+
+def delete_watchlist(db: Session, watchlist_id: int, user_id: int) -> bool:
+    db_watchlist = db.query(models.Watchlist).filter(
+        models.Watchlist.id == watchlist_id, 
+        models.Watchlist.user_id == user_id
+    ).first()
+    
+    if not db_watchlist:
+        return False
+        
+    db.delete(db_watchlist)
     db.commit()
     return True
+

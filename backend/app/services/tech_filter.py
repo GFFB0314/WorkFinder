@@ -69,5 +69,33 @@ def is_tech_job(job_data: Dict[str, Any]) -> bool:
             return True
     
     # If no match, it's not a tech job
-    print(f"[Filter] '{job_data.get('title')}' did not match any tech keywords. Blocked.")
+    # print(f"[Filter] '{job_data.get('title')}' did not match any tech keywords. Blocked.")
     return False
+
+def extract_skills(text: str) -> list[str]:
+    """
+    Extracts tech skills from text (title + description)
+    """
+    if not text:
+        return []
+        
+    text = text.lower()
+    found_skills = []
+    
+    # Re-use keywords from is_tech_job (copying list for now to avoid scope issues or refactor)
+    # Ideally should be a shared constant
+    tech_keywords = [
+        "python", "javascript", "react", "angular", "java", "c#", "c++", "golang", "ruby", "php",
+        "aws", "azure", "gcp", "docker", "kubernetes", "terraform",
+        "sql", "nosql", "postgresql", "mongodb", "redis",
+        "machine learning", "ai", "data science", "nlp",
+        "devops", "ci/cd", "linux", "git",
+        "frontend", "backend", "full stack", "mobile", "ios", "android"
+    ]
+    
+    for kw in tech_keywords:
+        # Simple containment check; for better results use regex boundry
+        if kw in text:
+            found_skills.append(kw)
+            
+    return list(set(found_skills))

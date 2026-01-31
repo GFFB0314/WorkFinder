@@ -14,3 +14,16 @@ celery: Celery = Celery(__name__)
 # Configure broker and result backend from environment variables
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+
+@celery.task
+def run_notification_engine():
+    from app.services.notifier import match_and_notify
+    match_and_notify()
+
+# Schedule
+celery.conf.beat_schedule = {
+    "daily-notifications": {
+        "task": "app.worker.run_notification_engine",
+        "schedule": 86400.0, # 24 hours
+    },
+}

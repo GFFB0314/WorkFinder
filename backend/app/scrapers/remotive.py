@@ -1,3 +1,28 @@
+"""
+Remotive API Scraper Module
+
+Fetches remote tech jobs from Remotive.com API.
+Remotive specializes in curated remote job listings across various tech roles.
+
+Features:
+    - Free API (no authentication required)
+    - Returns remote-only positions
+    - Tech job filtering applied
+    - JSON-based API (no HTML parsing)
+
+API Endpoint:
+    https://remotive.com/api/remote-jobs
+
+Usage:
+    from app.scrapers.remotive import fetch_remotive_jobs
+    
+    jobs = fetch_remotive_jobs(limit=20)
+    for job in jobs:
+        print(job['title'], job['company'], job['location'])
+
+Returns:
+    List of normalized job dictionaries with standard fields
+"""
 import requests
 from datetime import datetime
 from app.services.tech_filter import is_tech_job
