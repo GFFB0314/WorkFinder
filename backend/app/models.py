@@ -70,13 +70,27 @@ class Job(Base):
 
 
 class Watchlist(Base):
-    """Watchlist model for user job alerts"""
+    """Watchlist model for user job alerts with comprehensive filtering"""
     __tablename__ = "watchlists"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    keywords = Column(JSON, nullable=False)
-    frequency = Column(String, default="daily")  # 'daily', 'weekly'
+    
+    # Core filters
+    keywords = Column(JSON, nullable=False)  # List of keywords to match
+    location = Column(String, nullable=True)  # Location filter (optional)
+    remote_only = Column(Boolean, default=False)  # Remote jobs only
+    experience_level = Column(String, nullable=True)  # junior, mid, senior, lead
+    
+    # Salary range (optional)
+    min_salary = Column(Integer, nullable=True)  # Minimum salary
+    max_salary = Column(Integer, nullable=True)  # Maximum salary
+    
+    # Notification settings
+    frequency = Column(String, default="daily")  # 'instant', 'daily', 'weekly'
+    active = Column(Boolean, default=True)  # Active/inactive status
+    
+    # Tracking
     last_notified_at = Column(TIMESTAMP, nullable=True)  # Track last notification time
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -85,5 +99,5 @@ class Watchlist(Base):
     user = relationship("User", back_populates="watchlists")
 
     def __repr__(self):
-        return f"<Watchlist(id={self.id}, user_id={self.user_id}, keywords={self.keywords})>"
+        return f"<Watchlist(id={self.id}, user_id={self.user_id}, keywords={self.keywords}, active={self.active})>"
 

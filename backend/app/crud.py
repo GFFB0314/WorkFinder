@@ -274,9 +274,33 @@ def create_watchlist(db: Session, watchlist: schemas.WatchlistCreate, user_id: i
     db_watchlist = models.Watchlist(
         user_id=user_id,
         keywords=watchlist.keywords,
-        frequency=watchlist.frequency
+        location=watchlist.location,
+        remote_only=watchlist.remote_only,
+        experience_level=watchlist.experience_level,
+        min_salary=watchlist.min_salary,
+        max_salary=watchlist.max_salary,
+        frequency=watchlist.frequency,
+        active=watchlist.active
     )
     db.add(db_watchlist)
+    db.commit()
+    db.refresh(db_watchlist)
+    return db_watchlist
+
+def update_watchlist(db: Session, watchlist_id: int, watchlist: schemas.WatchlistUpdate, user_id: int) -> Optional[models.Watchlist]:
+    db_watchlist = db.query(models.Watchlist).filter(
+        models.Watchlist.id == watchlist_id,
+        models.Watchlist.user_id == user_id
+    ).first()
+    
+    if not db_watchlist:
+        return None
+    
+    # Update only provided fields
+    update_data = watchlist.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_watchlist, field, value)
+    
     db.commit()
     db.refresh(db_watchlist)
     return db_watchlist

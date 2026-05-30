@@ -144,7 +144,7 @@ def run_scrapers(source_name: str = "all", limit: int = 10):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Job Scrapers")
     parser.add_argument("--source", type=str, default="all", help="Source to scrape (Remotive, Adzuna, Jobartis, Emploi.cm)")
-    parser.add_argument("--limit", type=int, default=10, help="Max jobs per source")
+    parser.add_argument("--limit", type=int, default=15, help="Max jobs per source")
     
     args = parser.parse_args()
     

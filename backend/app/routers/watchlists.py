@@ -27,8 +27,21 @@ def create_watchlist(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user)
 ):
-    """Create a new watchlist."""
+    """Create a new watchlist with comprehensive filtering options."""
     return crud.create_watchlist(db, watchlist=watchlist, user_id=current_user.id)
+
+@router.put("/{watchlist_id}", response_model=schemas.WatchlistResponse)
+def update_watchlist(
+    watchlist_id: int,
+    watchlist: schemas.WatchlistUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(security.get_current_user)
+):
+    """Update an existing watchlist."""
+    updated = crud.update_watchlist(db, watchlist_id=watchlist_id, watchlist=watchlist, user_id=current_user.id)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Watchlist not found")
+    return updated
 
 @router.delete("/{watchlist_id}", status_code=204)
 def delete_watchlist(

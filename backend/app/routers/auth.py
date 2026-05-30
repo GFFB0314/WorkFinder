@@ -22,7 +22,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed_password = security.get_password_hash(user.password)
     return crud.create_user(db=db, email=user.email, password_hash=hashed_password)
 
-@router.post("/login", response_model=dict)
+@router.post("/token", response_model=dict)
 def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], 
     db: Session = Depends(get_db)

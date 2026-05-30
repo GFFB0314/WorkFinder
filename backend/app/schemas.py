@@ -121,9 +121,15 @@ class UserResponse(UserBase):
 # ============================================================================
 
 class WatchlistBase(BaseModel):
-    """Base schema for Watchlist with common fields"""
-    keywords: List[str] = Field(..., min_length=1, description="Keywords to watch for")
-    frequency: str = Field(default="daily", description="Notification frequency: 'daily', 'weekly'")
+    """Base schema for Watchlist with comprehensive filtering options"""
+    keywords: List[str] = Field(..., min_length=1, description="Keywords to watch for (e.g., 'Python', 'React')")
+    location: Optional[str] = Field(None, description="Location filter (e.g., 'London', 'Remote')")
+    remote_only: bool = Field(default=False, description="Only show remote jobs")
+    experience_level: Optional[str] = Field(None, description="Experience level: junior, mid, senior, lead")
+    min_salary: Optional[int] = Field(None, ge=0, description="Minimum salary (optional)")
+    max_salary: Optional[int] = Field(None, ge=0, description="Maximum salary (optional)")
+    frequency: str = Field(default="daily", description="Notification frequency: instant, daily, weekly")
+    active: bool = Field(default=True, description="Whether watchlist is active")
 
 
 class WatchlistCreate(WatchlistBase):
@@ -131,10 +137,24 @@ class WatchlistCreate(WatchlistBase):
     pass
 
 
+class WatchlistUpdate(BaseModel):
+    """Schema for updating an existing watchlist"""
+    keywords: Optional[List[str]] = None
+    location: Optional[str] = None
+    remote_only: Optional[bool] = None
+    experience_level: Optional[str] = None
+    min_salary: Optional[int] = None
+    max_salary: Optional[int] = None
+    frequency: Optional[str] = None
+    active: Optional[bool] = None
+
+
 class WatchlistResponse(WatchlistBase):
     """Schema for watchlist response"""
     id: int
     user_id: int
+    last_notified_at: Optional[datetime] = None
     created_at: datetime
+    updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
