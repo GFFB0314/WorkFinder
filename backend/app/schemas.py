@@ -111,9 +111,55 @@ class UserResponse(UserBase):
     """Schema for user response"""
     id: int
     role: str
+    subscription_status: str
+    subscription_expires_at: Optional[datetime] = None
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+
+# ============================================================================
+# CV Profile Schemas (Premium Feature)
+# ============================================================================
+
+class CVProfileBase(BaseModel):
+    """Base CV profile schema"""
+    skills: List[str] = Field(default=[], description="Extracted tech skills")
+    experience_level: Optional[str] = Field(None, description="Inferred experience level (junior, mid, senior, lead)")
+
+class CVProfileCreate(CVProfileBase):
+    """Schema for creating a CV Profile"""
+    raw_text: Optional[str] = Field(None, description="Extracted CV raw text")
+
+class CVProfileResponse(CVProfileBase):
+    """Schema for CV profile response"""
+    id: int
+    user_id: int
+    raw_text: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ============================================================================
+# Subscription & Payment Schemas
+# ============================================================================
+
+class SubscriptionRequest(BaseModel):
+    """Schema for simulating premium subscription purchase"""
+    plan: str = Field(..., description="Target plan: 'premium' or 'student'")
+    payment_method: str = Field(..., description="Target method: 'momo_mtn', 'momo_orange', or 'card'")
+    phone_number: Optional[str] = Field(None, description="Mobile Money number (required if MoMo selected)")
+    card_number: Optional[str] = Field(None, description="Card number (optional)")
+
+class SubscriptionResponse(BaseModel):
+    """Schema for subscription response"""
+    status: str
+    message: str
+    plan: str
+    subscription_status: str
+    subscription_expires_at: datetime
 
 
 # ============================================================================

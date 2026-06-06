@@ -12,14 +12,17 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     role = Column(String, default="user")
+    subscription_status = Column(String, default="free")  # 'free', 'premium', 'student'
+    subscription_expires_at = Column(TIMESTAMP, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     watchlists = relationship("Watchlist", back_populates="user")
+    cv_profile = relationship("CVProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<User(id={self.id}, email='{self.email}', role='{self.role}')>"
+        return f"<User(id={self.id}, email='{self.email}', role='{self.role}', sub='{self.subscription_status}')>"
 
 
 class Source(Base):
@@ -100,4 +103,23 @@ class Watchlist(Base):
 
     def __repr__(self):
         return f"<Watchlist(id={self.id}, user_id={self.user_id}, keywords={self.keywords}, active={self.active})>"
+
+
+class CVProfile(Base):
+    """CV Profile for storing parsed resume information (Premium Feature)"""
+    __tablename__ = "cv_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    raw_text = Column(Text, nullable=True)
+    skills = Column(JSON, nullable=True)  # Extracted skills list e.g. ["python", "react"]
+    experience_level = Column(String, nullable=True)  # junior, mid, senior, lead
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="cv_profile")
+
+    def __repr__(self):
+        return f"<CVProfile(id={self.id}, user_id={self.user_id}, skills={self.skills}, exp='{self.experience_level}')>"
 

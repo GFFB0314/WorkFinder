@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 
 from app.database import engine, Base
 from app import models
-from app.routers import jobs, sources, auth, watchlists
+from app.routers import jobs, sources, auth, watchlists, cv
 
 
 # Lifespan context manager for startup/shutdown events
@@ -77,6 +77,7 @@ app.include_router(jobs.router)
 app.include_router(sources.router)
 app.include_router(auth.router)
 app.include_router(watchlists.router)
+app.include_router(cv.router)
 
 
 # Health check endpoint

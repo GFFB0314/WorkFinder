@@ -16,3 +16,5 @@ passlib[bcrypt]
 python-multipart
 apscheduler
 bcrypt
+pypdf
+python-docx

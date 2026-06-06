@@ -41,8 +41,44 @@ def login(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+from datetime import datetime, timedelta
+
 @router.get("/me", response_model=schemas.UserResponse)
 def read_users_me(
     current_user: models.User = Depends(security.get_current_user)
 ):
     return current_user
+
+@router.post("/subscribe", response_model=schemas.SubscriptionResponse)
+def subscribe_user(
+    request: schemas.SubscriptionRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(security.get_current_user)
+):
+    """
+    Simulate subscription upgrade.
+    Sets the user's status to 'premium' or 'student' for 30 days.
+    """
+    if request.plan not in ["premium", "student"]:
+        raise HTTPException(status_code=400, detail="Invalid subscription plan.")
+        
+    # Set expiration to 30 days from now
+    expires_at = datetime.utcnow() + timedelta(days=30)
+    
+    updated_user = crud.update_user_subscription(
+        db=db,
+        user_id=current_user.id,
+        plan=request.plan,
+        expires_at=expires_at
+    )
+    
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found.")
+        
+    return schemas.SubscriptionResponse(
+        status="success",
+        message=f"Paiement traité avec succès via {request.payment_method} ! Bienvenue au club Premium !",
+        plan=request.plan,
+        subscription_status=updated_user.subscription_status,
+        subscription_expires_at=expires_at
+    )

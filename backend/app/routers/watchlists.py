@@ -28,6 +28,13 @@ def create_watchlist(
     current_user: models.User = Depends(security.get_current_user)
 ):
     """Create a new watchlist with comprehensive filtering options."""
+    # Freemium Gating Check
+    watchlist_count = db.query(models.Watchlist).filter(models.Watchlist.user_id == current_user.id).count()
+    if current_user.subscription_status not in ["premium", "student"] and watchlist_count >= 3:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Le forfait gratuit est limité à 3 watchlists d'offres. Veuillez passer au forfait Premium pour des alertes illimitées !"
+        )
     return crud.create_watchlist(db, watchlist=watchlist, user_id=current_user.id)
 
 @router.put("/{watchlist_id}", response_model=schemas.WatchlistResponse)

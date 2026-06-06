@@ -1,0 +1,639 @@
+INSTITUT UNIVERSITAIRE DE TECHNOLOGIE (IUT)
+DOUALA – DÉPARTEMENT GÉNIE INFORMATIQUE
+Génie Logiciel – Licence 3 | Année Académique 2025-2026
+
+
+CAHIER DES CHARGES TECHNIQUE
+ET FONCTIONNEL
+────────────────────────────────────
+WorkFinder
+Plateforme Intelligente de Collecte et de Centralisation d'Offres d'Emploi Tech
+
+
+Version 2.0 – Édition Projet de Fin d'Études
+Date de rédaction : 31 mai 2026
+
+
+Table des Matières
+
+1. Introduction
+1.1 Contexte Général
+Le marché de l'emploi technologique en Afrique subsaharienne, et particulièrement au Cameroun, se caractérise par une fragmentation prononcée de l'information. Les offres d'emploi sont disséminées sur une multitude de canaux hétérogènes : sites web spécialisés locaux, portails internationaux, réseaux sociaux professionnels, flux RSS, APIs tierces, et affichages physiques. Cette dispersion rend la veille professionnelle et la recherche d'emploi particulièrement fastidieuses pour les candidats, notamment les jeunes diplômés en génie informatique.
+Le secteur numérique camerounais est en pleine expansion, porté par des initiatives gouvernementales (Stratégie Nationale du Numérique) et l'émergence d'un écosystème startup dynamique à Douala et Yaoundé. Cette croissance génère une demande croissante de talents tech qualifiés, souvent non satisfaite faute de visibilité mutuelle entre recruteurs et candidats.
+1.2 Problématique
+La recherche d'emploi dans le secteur technologique au Cameroun est confrontée à plusieurs obstacles structurels :
+Fragmentation de l'information : Les offres sont dispersées sur une multitude de plateformes hétérogènes (sites web spécialisés, réseaux sociaux, affichages physiques), rendant une veille exhaustive quasi impossible.
+Redondance de l'information : Les candidats sont confrontés à une duplication massive des annonces sur différentes plateformes, augmentant significativement le bruit informationnel.
+Inadéquation offre-profil : L'absence de système intelligent de correspondance entre les profils candidats et les offres publiées contraint à un tri manuel chronophage et souvent peu pertinent.
+Inefficacité du processus : Le temps considérable consacré au filtrage manuel des offres non pertinentes ou obsolètes se fait au détriment de la préparation des candidatures.
+Absence d'accompagnement : Aucune solution locale ne propose d'aide à la construction de carrière, à la préparation des entretiens ou à l'optimisation du profil professionnel.
+
+Synthèse : Bien que l'information soit disponible, son manque de structuration, de centralisation et d'intelligence analytique constitue un obstacle majeur à l'efficience du marché de l'emploi technologique camerounais.
+1.3 Justification du Projet
+WorkFinder se positionne comme une plateforme intelligente d'agrégation, de centralisation et de recommandation d'offres d'emploi tech, spécifiquement adaptée au contexte africain et camerounais. La plateforme repose sur trois piliers fondamentaux :
+Collecte Automatisée et Multi-Sources : Agrégation continue des offres provenant de plus de 10 sources identifiées (APIs, flux RSS, sites HTML locaux et internationaux), éliminant le besoin de visites manuelles répétées.
+Traitement Intelligent : Nettoyage des données, élimination des doublons via algorithmes de hashing et fuzzy matching, extraction automatique des compétences, et score de qualité des offres.
+Intelligence Artificielle au Service de l'Emploi : Matching automatique CV ↔ Offres, score d'employabilité, recommandations personnalisées de carrière, et génération automatique de documents (CV, lettre de motivation).
+
+Ce projet constitue également un terrain d'application privilégié pour les compétences acquises en génie logiciel (architecture backend avancée, scraping, algorithmes de matching, frontend moderne, DevOps).
+1.4 Bénéficiaires
+1.5 Portée du Document
+Ce cahier des charges constitue la référence contractuelle et technique complète du projet WorkFinder. Il intègre : (a) le bilan de l'existant développé à ce jour, (b) les nouvelles spécifications fonctionnelles incluant le modèle freemium, (c) les nouvelles sources d'emploi à intégrer, (d) la modélisation UML et le modèle de données enrichi, et (e) la planification révisée jusqu'à la soutenance.
+
+2. Description Générale du Produit
+2.1 Vision du Produit
+WorkFinder ambitionne de devenir la référence de la recherche d'emploi technologique en Afrique francophone : une plateforme qui ne se contente pas d'afficher des annonces, mais qui accompagne activement le candidat tout au long de son parcours professionnel — de la découverte des opportunités à la préparation de l'entretien, en passant par l'optimisation de son profil et le suivi de ses candidatures.
+2.2 Analyse de l'Existant et Positionnement
+
+WorkFinder se différencie par sa spécialisation tech, son ancrage local africain, et ses fonctionnalités d'intelligence artificielle intégrées, absentes de toutes les solutions locales existantes.
+2.3 Modèle Économique : Freemium par Abonnement
+La plateforme adopte un modèle freemium structuré autour de deux niveaux d'accès : un niveau gratuit couvrant les fonctionnalités essentielles de recherche et d'alerte, et un niveau premium (abonnement mensuel ou annuel) débloquant les fonctionnalités d'intelligence artificielle et d'accompagnement à la carrière.
+
+
+3. Objectifs du Projet
+3.1 Objectif Général
+Concevoir, développer et déployer une plateforme web complète d'agrégation intelligente d'offres d'emploi technologiques qui collecte automatiquement les offres depuis au minimum 10 sources distinctes (APIs, flux RSS, sites HTML), les normalise, les dédoublonne, les classe par pertinence, et les met à disposition via une interface utilisateur moderne et réactive — enrichie de fonctionnalités d'intelligence artificielle pour le matching profil-offre, l'analyse de CV et l'accompagnement à la carrière — selon un modèle économique freemium avec abonnement.
+3.2 Objectifs Spécifiques
+Ingestion Multi-Sources (MVP) : Intégrer et maintenir au moins 10 sources d'offres d'emploi (4 déjà implémentées + 6+ nouvelles sources gratuites) avec un pipeline d'ingestion automatisé s'exécutant toutes les 6 heures.
+Qualité des Données : Implémenter un algorithme de dédoublonnage à double étape (hashing SHA-256 + fuzzy matching RapidFuzz avec seuil ≥ 90%) garantissant l'unicité des offres en base de données.
+Performance de Recherche : Offrir une recherche full-text multi-critères avec un temps de réponse inférieur à 200ms pour 95% des requêtes sur une base de 50 000+ offres.
+Intelligence IA : Implémenter un système de matching CV ↔ Offres basé sur l'extraction NLP des compétences et un score de compatibilité calculé en temps réel.
+Système d'Alertes : Notifier les utilisateurs par email et (version premium) en temps réel pour les nouvelles offres correspondant à leurs critères, sans notification de doublon.
+Modèle Économique : Implémenter le système d'abonnement freemium avec différenciation claire des fonctionnalités et gestion sécurisée des paiements.
+Déploiement Production : Livrer une application entièrement conteneurisée (Docker), déployée sur un environnement cloud accessible publiquement avec CI/CD GitHub Actions.
+Documentation Complète : Produire la documentation technique (API Swagger/OpenAPI), le manuel utilisateur, et ce cahier des charges pour la soutenance.
+3.3 Jalons (Milestones)
+
+4. État de l'Existant – Développements Réalisés
+Le projet a déjà fait l'objet d'un développement substantiel. Cette section recense exhaustivement ce qui a été implémenté, en distinguant ce qui est fonctionnel, partiellement fonctionnel, ou manquant.
+4.1 Architecture Technique Actuelle
+Backend : FastAPI (Python 3.11+), SQLite (en développement, PostgreSQL prévu en production)
+Frontend : React 19 + TypeScript + Vite + Tailwind CSS v4 + Framer Motion
+ORM : SQLAlchemy avec migration Alembic
+Auth : JWT via python-jose + bcrypt
+Containerisation : Docker + Docker Compose
+Dépendances backend clés : rapidfuzz, beautifulsoup4, apscheduler, requests, passlib
+4.2 Modules Backend Implémentés
+4.3 Pages Frontend Implémentées
+4.4 Lacunes Identifiées et Points d'Amélioration
+WeWorkRemotely scraper absent (mentionné dans le CDC initial mais non implémenté)
+Email réel non configuré (mock uniquement via fichier log – SendGrid/SMTP à intégrer)
+PostgreSQL non utilisé en développement (SQLite actuel – migration à finaliser pour production)
+Celery/Redis non activés (worker.py présent mais infrastructure async non démarrée)
+Admin dashboard UI absent (backend sources fonctionnel mais pas de page dédiée)
+Mode sombre/clair non implémenté
+Profil utilisateur (modification email/mot de passe) absent
+Favoris et historique de recherche non implémentés
+Aucun module IA (CV, matching, scoring) – prévu en fonctionnalités premium
+Tests unitaires (Pytest / Jest) non écrits
+
+5. Sources d'Emploi – Inventaire et Nouvelles Propositions
+5.1 Sources Actuellement Intégrées
+5.2 Nouvelles Sources Proposées – Priorité Gratuite
+Les sources suivantes ont été sélectionnées selon deux critères principaux : (1) accessibilité gratuite (API publique ou scraping autorisé) et (2) pertinence pour le profil utilisateur cible (profils tech en Afrique francophone ou emplois remote internationaux).
+
+
+5.2.1 Spécification Technique – Arbeitnow (Priorité Haute)
+Endpoint : GET https://arbeitnow.com/api/job-board-api?page={n}
+Authentification : Aucune (API publique)
+Format : JSON — champs : slug, title, company_name, tags[], location, remote, url, description, created_at
+Pagination : Paramètre ?page= (résultats par page : 25)
+Filtre tech : is_tech_job() appliqué sur le titre et les tags
+Fréquence recommandée : Toutes les 6 heures
+5.2.2 Spécification Technique – WeWorkRemotely (RSS, Priorité Haute)
+Endpoint : https://weworkremotely.com/remote-jobs.rss (catégorie : Prog & Software Dev)
+Authentification : Aucune
+Format : RSS/XML — bibliothèque : feedparser (Python)
+Champs : title, link, description, pubDate, company (extrait du titre)
+Normalisation : Parser XML → dict Job standardisé
+5.2.3 Spécification Technique – Jooble (Priorité Haute)
+Endpoint : POST https://jooble.org/api/{api_key}
+Body JSON : { "keywords": "developer", "location": "Cameroon" }
+Auth : Clé API gratuite (inscription sur jooble.org)
+Couverture : Plus de 140 pays dont Afrique subsaharienne
+Rate limit : Vérification selon accord commercial (généralement 100 req/jour gratuit)
+5.2.4 Stratégie d'Extension des Sources
+Les sources sont implémentées selon le Pattern Strategy (interface commune ScraperBase). Chaque nouveau scraper implémente les méthodes fetch() et normalize(). Cette architecture garantit que l'ajout d'une nouvelle source ne nécessite aucune modification du pipeline principal d'ingestion.
+
+6. Spécifications Fonctionnelles
+6.1 Architecture des Fonctionnalités par Niveau d'Accès
+
+7. Spécifications Techniques
+7.1 Architecture Globale
+WorkFinder adopte une architecture Monolithe Modulaire, compromis optimal entre la simplicité de déploiement d'un monolithe classique et l'isolation logique des microservices. Les modules (Ingestion, Recherche, Auth, IA, Notifications, Abonnements) sont clairement délimités mais déployés dans une seule unité.
+
+7.2 Stack Technologique Détaillée
+7.2.1 Backend
+
+7.2.2 Frontend
+7.3 Exigences Non Fonctionnelles
+7.4 API REST – Endpoints
+
+8. Modélisation UML
+8.1 Diagramme de Cas d'Utilisation
+Le système identifie quatre acteurs principaux :
+
+
+
+
+
+
+8.2 Diagramme de Classes Simplifié
+Les principales classes du système et leurs relations sont les suivantes :
+
+
+
+
+
+
+
+
+
+
+
+
+8.3 Diagramme de Séquence – Matching CV ↔ Offres (Premium)
+
+8.4 Diagramme d'Activité – Pipeline d'Ingestion
+
+
+9. Modèle de Données
+9.1 Modèle Physique de Données (MPD) – PostgreSQL
+Le MPD enrichi intègre les nouvelles entités requises par les fonctionnalités premium et le modèle freemium. Le SGBD cible est PostgreSQL 15 (avec extensions pg_trgm pour la recherche floue et tsvector pour le full-text search).
+
+Table : users
+
+Table : subscriptions
+
+
+Table : jobs (enrichie)
+
+
+
+
+
+
+Tables Additionnelles (Premium)
+9.2 Index et Optimisations
+CREATE INDEX idx_jobs_search ON jobs USING gin(search_vector) — Full-text search PostgreSQL
+CREATE INDEX idx_jobs_source ON jobs(source_id) — Jointure rapide avec sources
+CREATE INDEX idx_jobs_remote ON jobs(remote) — Filtre télétravail
+CREATE INDEX idx_jobs_skills ON jobs USING gin(skills) — Recherche dans les compétences JSONB
+CREATE INDEX idx_jobs_created ON jobs(created_at DESC) — Tri chronologique inverse
+CREATE UNIQUE INDEX idx_jobs_hash ON jobs(normalized_hash) — Garantit l'unicité
+CREATE INDEX idx_watchlists_user ON watchlists(user_id) — Requêtes watchlists par utilisateur
+
+10. Contraintes du Projet
+10.1 Contraintes Temporelles
+10.2 Contraintes Budgétaires
+Budget projet : Limité (contexte académique étudiant)
+Hébergement backend : Render.com (Free Tier) ou Railway (Free Tier – 500h/mois)
+Hébergement frontend : Vercel (Free Tier – illimité pour projets statiques)
+Base de données : Neon.tech PostgreSQL serverless (Free Tier – 0.5 GB) ou Supabase Free
+Emails transactionnels : Resend.com (3 000 emails/mois gratuits) ou Brevo Free
+APIs externes : Uniquement les tiers gratuits (Remotive, Arbeitnow, Findwork.dev, Jooble clé gratuite)
+IA / NLP : spaCy (open-source, auto-hébergé), sentence-transformers (open-source)
+Estimation coût mensuel opérationnel (hors soutenance) : 0 FCFA (tiers gratuits)
+10.3 Contraintes Humaines
+10.4 Contraintes Légales et Réglementaires
+RGPD : Respect de la protection des données utilisateurs — droit d'accès, de rectification et de suppression du compte et des données personnelles.
+Droits d'auteur : Respect des fichiers robots.txt des sites sources scrapés. Citation systématique de la source originale sur chaque offre affichée.
+Données scraping : Les données collectées sont affichées à des fins d'agrégation uniquement, avec lien direct vers la source originale.
+Conditions d'utilisation des APIs : Respect strict des rate limits et des conditions des APIs partenaires (Adzuna, Jooble, etc.)
+Paiements : Conformité PCI-DSS déléguée à Stripe ou CinetPay (aucune donnée de carte stockée en local).
+CVs uploadés : Données sensibles stockées de manière chiffrée, supprimées à la demande de l'utilisateur.
+10.5 Contraintes Techniques
+Rate limits APIs : Adzuna (250 req/jour gratuit), Jooble (100 req/jour), Findwork.dev (1 000/mois) — nécessite un cache Redis et une politique de retry exponentielle.
+Stabilité sources HTML : Les scrapers Jobartis et Emploi.cm doivent être rendus robustes aux changements de structure HTML (tests réguliers, alertes monitoring).
+Migration SQLite → PostgreSQL : Les types JSONB et TSVECTOR nécessitent PostgreSQL — migration Alembic à planifier et tester.
+Module IA (spaCy) : Modèle NLP français requis (fr_core_news_md) — à télécharger et intégrer dans l'image Docker (impact taille +~50 MB).
+Volume de données : La base peut atteindre 100 000+ offres à terme — pagination, indexation et nettoyage (suppression offres >90 jours) obligatoires.
+
+11. Méthodologie et Planification
+11.1 Méthodologie Retenue : Scrum Adapté
+La méthodologie retenue est Agile/Scrum adaptée au contexte académique (équipe de 5 membres, 14 semaines, encadreur jouant le rôle de Product Owner). Les sprints de 2 semaines permettent une livraison incrémentale avec validation régulière.
+Réunion hebdomadaire de synchronisation (30 min) : revue des tâches en cours, blocages, ajustements.
+Sprint Review (fin de chaque sprint) : démonstration des fonctionnalités implémentées à l'encadreur.
+Gestionnaire de tâches : GitHub Projects (Kanban : Todo / In Progress / Review / Done).
+Gestion du code : Git Flow avec branches feature/*, bugfix/*, hotfix/* fusionnées vers dev, puis vers main pour les releases.
+11.2 Plan de Sprints Révisé
+
+12. Gestion des Risques
+
+13. Tests et Validation
+13.1 Stratégie de Tests
+13.2 Critères de Recette Finale
+Le projet sera considéré comme validé pour la soutenance si les critères suivants sont tous satisfaits :
+L'ingestion automatique fonctionne pour au minimum 6 sources actives, générant ≥ 5 000 offres en base.
+Le dédoublonnage est effectif : aucune offre identique (même titre + entreprise) visible dans l'interface.
+La recherche est fonctionnelle et rapide (< 200ms pour 95% des requêtes sur la DB de production).
+Les watchlists déclenchent des notifications email réelles (pas uniquement des mocks) pour les nouvelles offres correspondantes.
+L'upload de CV et le calcul du score de compatibilité fonctionnent en moins de 5 secondes.
+Les fonctionnalités premium sont correctement verrouillées pour les utilisateurs du tier gratuit.
+L'application est déployée et accessible sur une URL publique (https://).
+Le code est couvert à ≥ 70% par des tests unitaires backend (Pytest).
+La documentation API (Swagger) est complète et accessible depuis l'URL de production.
+
+14. Perspectives et Évolutions Futures
+14.1 Évolutions Post-Soutenance (Version 2.1+)
+Application Mobile (React Native / Expo) : Version iOS et Android de WorkFinder avec notifications push natives.
+Alertes Telegram et WhatsApp : Intégration des API Telegram Bot et WhatsApp Business pour les notifications.
+IA de Matching Avancée : Remplacement du TF-IDF par des modèles de langage (sentence-transformers fr, CamemBERT) pour un matching sémantique plus précis.
+Espace Entreprises Complet : Interface dédiée aux recruteurs pour la publication directe d'offres, le ciblage et le suivi des candidats.
+Tableau de Bord Écoles (B2B) : Interface dédiée aux établissements d'enseignement pour suivre l'insertion professionnelle de leurs étudiants.
+Intégration Calendrier : Synchronisation automatique des entretiens avec Google Calendar / Outlook.
+Extension Chrome : Notification instantanée quand une nouvelle offre correspondant au profil est publiée.
+14.2 Limitations Actuelles de la V1
+Candidature directe non disponible depuis la plateforme (redirection vers le site source de l'offre).
+Pas de messagerie interne entre candidats et recruteurs.
+IA de matching basée sur TF-IDF (approche statistique), pas encore sur des transformers (coût computationnel).
+Couverture géographique africaine encore partielle (focus Cameroun + remote international).
+14.3 Vision à 3 Ans
+À horizon 3 ans, WorkFinder ambitionne de devenir la référence de l'emploi tech en Afrique francophone avec une couverture de 15+ pays, une base de 500 000+ offres, 50 000+ utilisateurs actifs, et un modèle économique pérenne combinant abonnements individuels, partenariats entreprises, et publicité ciblée non intrusive.
+
+15. Annexes
+Annexe A – Glossaire
+
+Annexe B – Références Techniques
+Documentation FastAPI : https://fastapi.tiangolo.com/
+Documentation React 19 : https://react.dev/
+PostgreSQL Full Text Search : https://www.postgresql.org/docs/current/textsearch.html
+RapidFuzz (Fuzzy Matching) : https://github.com/rapidfuzz/RapidFuzz
+spaCy NLP : https://spacy.io/
+Sentence Transformers : https://sbert.net/
+API Arbeitnow : https://arbeitnow.com/api/job-board-api
+API Findwork.dev : https://findwork.dev/api/jobs/
+API Jooble : https://jooble.org/api
+Stripe Payment Integration : https://stripe.com/docs
+CinetPay (Paiements Afrique) : https://cinetpay.com/
+Resend (Emails transactionnels) : https://resend.com/
+Docker Documentation : https://docs.docker.com/
+GitHub Actions CI/CD : https://docs.github.com/en/actions
+
+Annexe C – Acronymes
+
+
+Validation du Cahier des Charges
+Ce document a été rédigé conformément aux standards académiques en vigueur à l'IUT de Douala, Département Génie Informatique, et constitue la référence officielle pour le projet WorkFinder.
+
+
+ÉQUIPE DE DÉVELOPPEMENT
+Fares  ·  Danielle  ·  Ruth  ·  Amadou  ·  Miguel
+Encadreur Académique : Mr Mbompieze
+Acteur | Profil | Bénéfice Principal
+Chercheurs d'emploi | Développeurs, Data Scientists, DevOps, Designers UX/UI au Cameroun et en Afrique | Gain de temps, visibilité complète du marché, recommandations personnalisées
+Étudiants en informatique | Élèves en licence, master ou écoles d'ingénieurs cherchant un stage ou premier emploi | Mode dédié, convention de stage préremplie, suivi des candidatures
+Recruteurs / Entreprises | Startups, PME, grandes entreprises du secteur tech au Cameroun | Visibilité accrue, ciblage automatique des candidats compatibles
+Administrateurs | Équipe technique WorkFinder | Dashboard de monitoring, gestion des sources, métriques d'ingestion
+Solution | Points Forts | Lacunes | Coût
+Jobartis CM / Emploi.cm | Contenu local riche, offres camerounaises | Interface datée, pas d'agrégation externe, recherche limitée, aucune IA | Gratuit
+LinkedIn Jobs | Réseau professionnel, volume d'offres important | Premium payant, non spécifique au contexte local tech, peu de petites entreprises locales | Freemium
+Indeed (agrégateur) | Volume énorme, couverture mondiale | Beaucoup de doublons, scraping bloqué, peu adapté au marché local | Gratuit (Ads)
+Jobberman Nigeria | Couverture Afrique de l'Ouest, API disponible | Pas de filtre tech avancé, couverture Cameroun limitée | Freemium
+WorkFinder (ce projet) | Agrégation multi-sources, IA, matching CV, contexte local + international | Projet académique en cours, ressources limitées | Freemium
+Niveau | Public Cible | Fonctionnalités Clés | Tarification
+Gratuit (Free) | Tout utilisateur inscrit | Recherche avancée, 3 alertes, filtres de base, favoris (10 max), historique 7j | 0 FCFA / mois
+Premium (Standard) | Actifs en recherche d'emploi | Toutes fonctionnalités Free + IA matching, CV upload, alertes illimitées, suivi candidatures, génération lettre de motivation | 2 500 FCFA / mois
+25 000 FCFA / an
+Premium (Étudiant) | Étudiants avec carte d'étudiant valide | Toutes fonctionnalités Premium + mode stage, convention préremplie, tableau de bord école | 1 500 FCFA / mois
+15 000 FCFA / an
+Entreprise | Recruteurs et DRH | Publication d'offres, ciblage automatique, score candidats, statistiques de visibilité | Sur devis (B2B)
+Jalon | Semaine | Livrable | Critère de Succès
+J0 – Bilan existant | S1 | Audit du code existant, ce cahier des charges | Document validé par l'encadreur
+J1 – Nouvelles sources | S3 | 6+ nouvelles sources d'ingestion opérationnelles | ≥ 5 000 offres en base
+J2 – Backend complet | S5 | API REST complète + système d'abonnement | Tous endpoints documentés Swagger
+J3 – IA Matching | S7 | Module CV upload + score de compatibilité | Matching fonctionnel sur 20 CVs test
+J4 – Frontend complet | S9 | Interface Premium + Dashboard utilisateur | UX validée par l'encadreur
+J5 – Déploiement | S11 | Application en production sur cloud | URL publique accessible
+J6 – Livraison finale | S14 | Rapport, slides, démo live | Soutenance réussie
+Module | Fichier(s) | Statut | Description
+Modèle de données | app/models.py | ✅ Complet | User, Source, Job, Watchlist (SQLAlchemy ORM)
+API Jobs | app/routers/jobs.py | ✅ Complet | GET /api/jobs (liste, filtre, pagination), GET /api/jobs/{id}, POST /api/jobs
+API Auth | app/routers/auth.py | ✅ Complet | POST /api/auth/register, POST /api/auth/token (JWT), GET /api/auth/me
+API Sources | app/routers/sources.py | ✅ Complet | CRUD sources (admin), toggle status, last_scraped_at
+API Watchlists | app/routers/watchlists.py | ✅ Complet | CRUD watchlists (auth requis), filtres avancés (keywords, location, remote, salary)
+Dédoublonnage | app/services/deduplication.py | ✅ Complet | Hash MD5 + Fuzzy Matching (RapidFuzz, seuil 90%)
+Filtre Tech | app/services/tech_filter.py | ✅ Complet | is_tech_job() + extract_skills() par dictionnaire de mots-clés
+Notification | app/services/notifier.py | ⚠️ Mock | Matching watchlists ↔ jobs fonctionnel, envoi email simulé (fichier log)
+Scraper Remotive | app/scrapers/remotive.py | ✅ Fonctionnel | API gratuite, aucune auth, jobs remote tech
+Scraper Adzuna | app/scrapers/adzuna.py | ✅ Fonctionnel | API JSON (clé requise), filtre tech appliqué
+Scraper Jobartis | app/scrapers/jobartis.py | ❌ Défaillant | Sélecteurs CSS obsolètes, renvoie 0 offres, nécessite maintenance
+Scraper Emploi.cm | app/scrapers/emploicm.py | ⚠️ Partiel | Trouve 1 carte mais extrait 0 offres, sélecteurs à corriger
+Scheduler | backend/scheduled_scraper.py | ✅ Présent | APScheduler, exécution périodique des scrapers
+CRUD opérations | app/crud.py | ✅ Complet | Toutes opérations DB pour Jobs, Users, Sources, Watchlists
+Sécurité | app/utils/security.py | ✅ Complet | JWT création/vérification, bcrypt hashing, get_current_user
+Page / Composant | Fichier | Statut | Fonctionnalités
+Page d'Accueil | pages/HomePage.tsx | ✅ Complet | Hero animé (Framer Motion), recherche debounced, filtres sidebar, liste jobs paginée, skeleton loading
+Page Détails Offre | pages/JobDetailsPage.tsx | ✅ Complet | Description complète, métadonnées, lien externe vers l'offre originale
+Page Login | pages/LoginPage.tsx | ✅ Complet | Formulaire JWT, gestion d'erreurs, redirection
+Page Inscription | pages/RegisterPage.tsx | ✅ Complet | Formulaire inscription, validation, redirection
+Dashboard Utilisateur | pages/DashboardPage.tsx | ✅ Complet | Gestion watchlists (create/edit/delete), liste alertes actives
+JobCard | components/JobCard.tsx | ✅ Complet | Carte offre avec tags skills, badge remote, lien détail
+WatchlistCard | components/WatchlistCard.tsx | ✅ Complet | Affichage alerte, toggle actif, édition/suppression
+CreateWatchlistModal | components/CreateWatchlistModal.tsx | ✅ Complet | Modal création alerte avec tous les filtres (keywords, location, remote, salary, frequency)
+EditWatchlistModal | components/EditWatchlistModal.tsx | ✅ Complet | Modal édition identique à la création
+Header | components/Header.tsx | ✅ Complet | Navigation, état auth (connecté/déconnecté), logout
+Source | Type | Région | Statut | Auth Requise
+Remotive | API JSON (gratuite) | International / Remote | ✅ Fonctionnel | Non
+Adzuna | API JSON | International (UK, US...) | ✅ Fonctionnel | Oui (clé gratuite)
+Jobartis CM | HTML Scraping | Cameroun | ❌ CSS obsolètes | Non
+Emploi.cm | HTML Scraping | Cameroun | ⚠️ Partiel | Non
+Source | Type / URL | Région | Intérêt | Priorité
+Arbeitnow | API REST gratuite (sans auth)
+arbeitnow.com/api/job-board-api | Europe / Remote | JSON structuré, tech-focus, pagination simple, très stable, aucune clé requise | 🔴 Haute
+Findwork.dev | API REST (clé gratuite)
+findwork.dev/api/jobs/ | International | Agrège depuis GitHub Jobs, Stack Overflow, HN Who's Hiring – idéal dev tech | 🔴 Haute
+Jooble | API JSON (clé gratuite)
+jooble.org/api | Mondial (dont Afrique) | Agrégateur mondial avec bonne couverture Afrique, filtre par pays/région | 🔴 Haute
+WeWorkRemotely | Flux RSS gratuit
+weworkremotely.com/remote-jobs.rss | International / Remote | Prévu dans CDC initial, non implémenté, offres remote premium qualité | 🔴 Haute
+Careerjet | API XML/JSON gratuite
+www.careerjet.com/partners/api/ | Mondial | Aucune clé requise, couverture massive, disponible pour l'Afrique | 🟡 Moyenne
+The Muse | API JSON (clé gratuite)
+www.themuse.com/api/public/jobs | USA / International | Profils d'entreprises riches, culture d'entreprise, tech bien représenté | 🟡 Moyenne
+Jobberman | API REST (clé gratuite)
+dev.jobberman.com | Nigeria / Afrique de l'Ouest | API officielle, couverture Afrique de l'Ouest dont Cameroun | 🟡 Moyenne
+BrighterMonday | HTML Scraping
+brightermonday.co.ke / .com.gh | Afrique de l'Est & Ouest | Présence Ghana, Kenya, Nigeria – complémentaire au marché local | 🟡 Moyenne
+Kek Emploi | HTML Scraping
+kekemploi.com | Cameroun | Portail emploi camerounais complémentaire à Emploi.cm | 🟢 Basse
+AfricaJobs.com | HTML Scraping
+africajobs.com | Afrique continentale | Vue panafricaine, profils IT bien représentés | 🟢 Basse
+Fonctionnalité | Gratuit | Premium Std | Premium Étud.
+CONSULTATION & RECHERCHE | CONSULTATION & RECHERCHE | CONSULTATION & RECHERCHE | CONSULTATION & RECHERCHE
+Accès au catalogue d'offres (illimité) | ✅ | ✅ | ✅
+Recherche textuelle multi-critères | ✅ | ✅ | ✅
+Filtre Remote / Hybride / Présentiel | ✅ | ✅ | ✅
+Filtre localisation (ville, pays) | ✅ | ✅ | ✅
+Filtre niveau d'expérience (Junior/Mid/Senior) | ✅ | ✅ | ✅
+Filtre par compétences techniques (stack) | ✅ | ✅ | ✅
+Consultation détail d'une offre | ✅ | ✅ | ✅
+Offres triées par compatibilité CV (score IA) | ❌ | ✅ | ✅
+Filtre 'Entreprises ouvertes aux Juniors' | ❌ | ✅ | ✅
+Filtre 'Entreprises recrutant sans diplôme' | ❌ | ✅ | ✅
+Comparaison côte-à-côte de deux offres | ❌ | ✅ | ✅
+COMPTE & PROFIL | COMPTE & PROFIL | COMPTE & PROFIL | COMPTE & PROFIL
+Inscription et connexion (JWT) | ✅ | ✅ | ✅
+Modification profil (email, mot de passe) | ✅ | ✅ | ✅
+Historique de recherche (7 derniers jours) | ✅ | ✅ | ✅
+Favoris (10 offres max) | ✅ | ✅ | ✅
+Favoris (illimités) | ❌ | ✅ | ✅
+Profil public partageable (mini-portfolio) | ❌ | ✅ | ✅
+WATCHLISTS & ALERTES | WATCHLISTS & ALERTES | WATCHLISTS & ALERTES | WATCHLISTS & ALERTES
+Watchlists (alertes) – 3 maximum | ✅ | ✅ | ✅
+Watchlists illimitées | ❌ | ✅ | ✅
+Notification email quotidienne | ✅ | ✅ | ✅
+Alertes intelligentes (haute pertinence uniquement) | ❌ | ✅ | ✅
+Notification temps-réel (push/email instantané) | ❌ | ✅ | ✅
+INTELLIGENCE CV & PROFIL | INTELLIGENCE CV & PROFIL | INTELLIGENCE CV & PROFIL | INTELLIGENCE CV & PROFIL
+Upload CV (PDF, DOCX) | ❌ | ✅ | ✅
+Extraction automatique des compétences du CV | ❌ | ✅ | ✅
+Matching automatique CV ↔ Offres (score %) | ❌ | ✅ | ✅
+'Pourquoi cette offre vous correspond' | ❌ | ✅ | ✅
+Score d'employabilité par métier (Frontend, Data…) | ❌ | ✅ | ✅
+Détection compétences manquantes | ❌ | ✅ | ✅
+Recommandations pour améliorer le score | ❌ | ✅ | ✅
+Génération CV optimisé pour une offre ciblée | ❌ | ✅ | ✅
+Analyse GitHub / Portfolio public | ❌ | ✅ | ✅
+Détection niveau réel (Junior/Intermédiaire/Senior) | ❌ | ✅ | ✅
+TABLEAU DE BORD CANDIDAT | TABLEAU DE BORD CANDIDAT | TABLEAU DE BORD CANDIDAT | TABLEAU DE BORD CANDIDAT
+Suivi des candidatures (statut : vu/refusé/entretien/accepté) | ❌ | ✅ | ✅
+Progression du score d'employabilité dans le temps | ❌ | ✅ | ✅
+Suggestions de métiers compatibles avec le profil | ❌ | ✅ | ✅
+MODE ÉTUDIANT / STAGE | MODE ÉTUDIANT / STAGE | MODE ÉTUDIANT / STAGE | MODE ÉTUDIANT / STAGE
+Mode 'Je cherche un stage' (interface dédiée) | ❌ | ❌ | ✅
+Filtre 'Stage pré-embauche' | ❌ | ❌ | ✅
+Filtre par durée de stage | ❌ | ❌ | ✅
+Suggestions de stages selon la filière | ❌ | ❌ | ✅
+Convention de stage préremplie (génération PDF) | ❌ | ❌ | ✅
+AIDE À LA CARRIÈRE | AIDE À LA CARRIÈRE | AIDE À LA CARRIÈRE | AIDE À LA CARRIÈRE
+Roadmap personnalisée (plan apprentissage → métier cible) | ❌ | ✅ | ✅
+Suggestions de mini-projets pour enrichir le CV | ❌ | ✅ | ✅
+Suggestions de ressources d'apprentissage (cours, tutos) | ❌ | ✅ | ✅
+Simulation d'impact d'une compétence sur le score | ❌ | ✅ | ✅
+Tendances du marché (compétences les + demandées) | ❌ | ✅ | ✅
+Génération automatique lettre de motivation | ❌ | ✅ | ✅
+Préparation aux entretiens (questions types par offre) | ❌ | ✅ | ✅
+COMMUNAUTÉ & QUALITÉ | COMMUNAUTÉ & QUALITÉ | COMMUNAUTÉ & QUALITÉ | COMMUNAUTÉ & QUALITÉ
+Consultation des avis anonymes sur les entreprises | ✅ | ✅ | ✅
+Rédaction d'avis sur les entreprises | ❌ | ✅ | ✅
+Score de qualité des offres (clarté, précision) | ✅ (lecture) | ✅ | ✅
+EXPÉRIENCE UTILISATEUR | EXPÉRIENCE UTILISATEUR | EXPÉRIENCE UTILISATEUR | EXPÉRIENCE UTILISATEUR
+Mode sombre / clair | ✅ | ✅ | ✅
+Interface mobile-first responsive | ✅ | ✅ | ✅
+Apprentissage selon l'historique de navigation | ❌ | ✅ | ✅
+Couche | Technologie | Rôle
+Frontend (SPA) | React 19 + TypeScript + Vite + Tailwind CSS v4 | Interface utilisateur, appels API REST
+API Gateway | FastAPI (Python 3.11+) | Orchestration des modules, validation Pydantic, documentation OpenAPI
+Module Ingestion | APScheduler + BeautifulSoup + Requests | Collecte périodique des offres depuis 10+ sources
+Module IA | spaCy / sentence-transformers + scikit-learn | Extraction skills CV, calcul score compatibilité, matching NLP
+Module Notifications | Celery + Redis + SMTP (SendGrid) | Envoi emails alertes, tâches asynchrones
+Module Abonnements | Stripe API (ou CinetPay pour FCFA) | Gestion paiements, activation plans premium
+Base de Données | PostgreSQL 15 + SQLAlchemy ORM + Alembic | Stockage persistant, full-text search (tsvector)
+Cache | Redis | Cache requêtes fréquentes, broker Celery
+Déploiement | Docker + Docker Compose + GitHub Actions CI/CD | Conteneurisation, déploiement Render/Railway
+Bibliothèque | Version | Usage
+FastAPI | ≥ 0.111 | Framework web asynchrone, génération automatique Swagger/OpenAPI
+SQLAlchemy | ≥ 2.0 | ORM, requêtes typées, migrations Alembic
+Pydantic | v2 | Validation schemas, sérialisation/désérialisation
+python-jose[cryptography] | ≥ 3.3 | Génération et vérification tokens JWT
+passlib[bcrypt] | ≥ 1.7 | Hachage sécurisé des mots de passe (bcrypt)
+rapidfuzz | ≥ 3.6 | Fuzzy matching pour dédoublonnage des offres
+beautifulsoup4 + lxml | ≥ 4.12 | Parsing HTML des scrapers
+feedparser | ≥ 6.0 | Parsing flux RSS (WeWorkRemotely, autres)
+spaCy / sentence-transformers | ≥ 3.7 | NLP : extraction skills CV, matching sémantique
+celery + redis | ≥ 5.3 | Tâches asynchrones (emails, scraping planifié)
+apscheduler | ≥ 3.10 | Planification scraping périodique
+stripe | ≥ 7.0 | Intégration paiements abonnement premium
+httpx | ≥ 0.27 | Client HTTP async pour les APIs externes
+Bibliothèque | Version | Usage
+React | 19 | Framework UI, composants fonctionnels, hooks
+TypeScript | ~5.9 | Typage statique, maintenabilité
+Vite | 7 | Build tool, HMR rapide
+Tailwind CSS | 4 | Styling utilitaire, design system
+Framer Motion | 12 | Animations, transitions de page
+Axios | 1.13+ | Client HTTP, intercepteurs JWT
+React Router DOM | 7 | Navigation SPA, routes protégées
+React Hook Form + Zod | À ajouter | Validation formulaires (upload CV, watchlists)
+Lucide React | 0.563+ | Bibliothèque d'icônes SVG
+date-fns | 4 | Formatage et manipulation des dates
+Exigence | Critère de Mesure | Valeur Cible
+Performance – Recherche | Temps de réponse API GET /jobs | < 200 ms (P95 sur 50 000 offres)
+Performance – IA Matching | Temps calcul score compatibilité | < 2 s par requête (lot 100 offres)
+Disponibilité | Uptime mensuel | ≥ 99%
+Sécurité – Auth | Protocole | JWT RS256, expiry 30 min, refresh token
+Sécurité – Mots de passe | Algorithme hachage | bcrypt (cost factor 12)
+Sécurité – API | Protection | Rate limiting (100 req/min), CORS strict
+Sécurité – Données | Réglementation | RGPD : droit d'accès, modification, suppression
+Scalabilité – Ingestion | Volume traité par cycle | ≥ 1 000 offres/cycle sans timeout
+Scalabilité – Utilisateurs | Utilisateurs simultanés | ≥ 100 utilisateurs concurrents (MVP)
+Responsivité | Support mobile | Mobile-first, viewport 320px–1440px
+Accessibilité | Standard | WCAG 2.1 niveau AA
+Maintenabilité | Couverture tests | ≥ 70% couverture backend (Pytest)
+Portabilité | Déploiement | Docker, compatible Linux/macOS/Windows
+Méthode | Endpoint | Auth | Description
+GET | /api/jobs | Non | Liste jobs avec filtres (search, location, remote, skills, page, page_size)
+GET | /api/jobs/{id} | Non | Détail d'un job
+POST | /api/jobs | Admin | Créer un job (ingestion)
+GET | /api/sources | Non | Liste des sources d'ingestion
+POST | /api/sources | Admin | Ajouter une source
+PUT | /api/sources/{id} | Admin | Modifier une source
+DELETE | /api/sources/{id} | Admin | Supprimer une source
+POST | /api/auth/register | Non | Inscription utilisateur
+POST | /api/auth/token | Non | Connexion (retourne JWT)
+GET | /api/auth/me | JWT | Profil utilisateur connecté
+PUT | /api/auth/me | JWT | Modifier profil
+GET | /api/watchlists | JWT | Liste watchlists de l'utilisateur
+POST | /api/watchlists | JWT | Créer une watchlist
+PUT | /api/watchlists/{id} | JWT | Modifier une watchlist
+DELETE | /api/watchlists/{id} | JWT | Supprimer une watchlist
+GET | /api/favorites | JWT | Offres sauvegardées
+POST | /api/favorites/{job_id} | JWT | Sauvegarder une offre
+DELETE | /api/favorites/{job_id} | JWT | Supprimer des favoris
+POST | /api/cv/upload | JWT+Premium | Upload et analyse du CV
+GET | /api/cv/match | JWT+Premium | Score matching CV ↔ offres actives
+GET | /api/cv/score | JWT+Premium | Score employabilité par métier
+GET | /api/applications | JWT+Premium | Suivi des candidatures
+POST | /api/applications | JWT+Premium | Enregistrer une candidature
+PUT | /api/applications/{id} | JWT+Premium | Mettre à jour statut
+GET | /api/career/roadmap | JWT+Premium | Roadmap personnalisée
+GET | /api/career/trends | JWT+Premium | Tendances marché
+POST | /api/cover-letter | JWT+Premium | Générer lettre de motivation
+GET | /api/reviews/{company} | Non | Avis sur une entreprise
+POST | /api/reviews | JWT+Premium | Rédiger un avis
+POST | /api/subscriptions/checkout | JWT | Initier paiement abonnement
+GET | /api/subscriptions/status | JWT | Statut abonnement actuel
+POST | /api/admin/scrape | Admin | Lancer manuellement l'ingestion
+GET | /api/admin/stats | Admin | Statistiques plateforme
+GET | /health | Non | Health check
+Colonne | Type | Contrainte | Description
+id | SERIAL | PK | Identifiant unique
+email | VARCHAR(255) | UNIQUE, NOT NULL | Adresse email de connexion
+password_hash | VARCHAR(255) | NOT NULL | Hash bcrypt du mot de passe
+role | VARCHAR(50) | DEFAULT 'user' | Rôle : 'user' ou 'admin'
+subscription_status | VARCHAR(50) | DEFAULT 'free' | Statut : 'free', 'premium', 'student'
+subscription_expires_at | TIMESTAMP | NULLABLE | Date d'expiration de l'abonnement
+created_at | TIMESTAMP | DEFAULT NOW() | Date d'inscription
+updated_at | TIMESTAMP | DEFAULT NOW() | Dernière mise à jour
+Colonne | Type | Contrainte | Description
+id | SERIAL | PK | Identifiant unique
+user_id | INTEGER | FK → users(id) | Utilisateur abonné
+plan | VARCHAR(50) | NOT NULL | 'free', 'premium', 'student', 'enterprise'
+billing_cycle | VARCHAR(20) | NOT NULL | 'monthly' ou 'annual'
+start_date | TIMESTAMP | NOT NULL | Début de l'abonnement
+end_date | TIMESTAMP | NOT NULL | Fin de l'abonnement
+status | VARCHAR(30) | DEFAULT 'active' | 'active', 'expired', 'cancelled'
+payment_ref | VARCHAR(255) | NULLABLE | Référence paiement Stripe / CinetPay
+amount_fcfa | INTEGER | NULLABLE | Montant payé en FCFA
+created_at | TIMESTAMP | DEFAULT NOW() | Date de souscription
+Colonne | Type | Contrainte | Description
+id | SERIAL | PK | Identifiant unique
+title | TEXT | NOT NULL | Titre du poste
+company | TEXT | NOT NULL | Nom de l'entreprise
+location | TEXT | NULLABLE | Lieu du poste (ville, pays)
+remote | BOOLEAN | DEFAULT FALSE | Poste en télétravail
+description | TEXT | NULLABLE | Description complète de l'offre
+url | TEXT | NULLABLE | URL originale de l'offre
+skills | JSONB | NULLABLE | Liste des compétences extraites
+salary_min | INTEGER | NULLABLE | Salaire minimum
+salary_max | INTEGER | NULLABLE | Salaire maximum
+currency | VARCHAR(10) | DEFAULT 'XAF' | Devise (XAF, EUR, USD)
+experience_level | VARCHAR(20) | NULLABLE | 'junior', 'mid', 'senior', 'lead'
+is_internship | BOOLEAN | DEFAULT FALSE | Poste de stage
+internship_duration | VARCHAR(50) | NULLABLE | Durée du stage (ex: '3 mois')
+quality_score | FLOAT | DEFAULT 0.5 | Score qualité (0 à 1)
+normalized_hash | VARCHAR(64) | UNIQUE, NOT NULL | Hash dédoublonnage MD5
+raw_json | JSONB | NULLABLE | Données brutes de la source
+search_vector | TSVECTOR | GENERATED | Vecteur full-text search PostgreSQL
+posted_at | TIMESTAMP | NULLABLE | Date de publication originale
+source_id | INTEGER | FK → sources(id) | Source de l'offre
+created_at | TIMESTAMP | DEFAULT NOW() | Date d'insertion en DB
+updated_at | TIMESTAMP | DEFAULT NOW() | Dernière mise à jour
+Table | Colonnes Principales | Description
+cv_profiles | id, user_id FK, raw_text TEXT, skills JSONB, experience_level VARCHAR, github_url TEXT, employability_scores JSONB, last_analyzed_at TIMESTAMP | Profil extrait du CV uploadé par l'utilisateur
+favorites | id, user_id FK, job_id FK, created_at TIMESTAMP — UNIQUE(user_id, job_id) | Offres sauvegardées par l'utilisateur
+applications | id, user_id FK, job_id FK, status VARCHAR, applied_at TIMESTAMP, notes TEXT, updated_at TIMESTAMP | Suivi des candidatures envoyées
+company_reviews | id, user_id FK, company_name VARCHAR, rating INTEGER (1-5), review_text TEXT, is_anonymous BOOLEAN, created_at TIMESTAMP | Avis anonymes sur les entreprises
+notifications | id, user_id FK, watchlist_id FK, job_id FK, channel VARCHAR, sent_at TIMESTAMP, read_at TIMESTAMP | Historique des notifications envoyées
+watchlists (enrichie) | id, user_id FK, keywords JSONB, location VARCHAR, remote_only BOOLEAN, experience_level VARCHAR, min_salary INTEGER, max_salary INTEGER, is_internship BOOLEAN, frequency VARCHAR, active BOOLEAN, last_notified_at TIMESTAMP | Alertes personnalisées avec filtres avancés dont stages
+Jalon | Semaine | Date Cible | Livrable
+Kickoff + Audit existant | S1 | Sem. 1 – Juin 2026 | CDC validé (ce document)
+Nouvelles sources opérationnelles | S3 | Sem. 3 | 6 nouvelles sources scraping OK
+Backend API complet + abonnement | S5 | Sem. 5 | API REST documentée + Stripe intégré
+Module IA (CV + matching) | S7 | Sem. 7 | CV upload + score compatibilité
+Frontend complet + Premium UI | S9 | Sem. 9 | Toutes pages, responsive, dark mode
+Tests + Déploiement | S11 | Sem. 11 | Tests 70%+, URL production accessible
+Documentation + Rapport | S13 | Sem. 13 | Rapport final, slides, doc API
+Soutenance | S14 | Sem. 14 | Démonstration live de la plateforme
+Membre | Rôle | Responsabilités Actuelles et Nouvelles
+Fares | Chef Projet / Lead Backend | Architecture, CI/CD, API core, système abonnement, Stripe, PostgreSQL migration
+Danielle | Dev Backend – Ingestion | Nouvelles sources (Arbeitnow, WeWorkRemotely, Jooble, Findwork), fix Jobartis/Emploi.cm, module IA NLP
+Ruth | Lead Frontend | Dark mode, responsive mobile, pages Premium (CV, roadmap, tendances), animations
+Amadou | Dev Frontend | Dashboard candidat (suivi candidatures, score), page comparaison offres, profil public
+Miguel | Dev Frontend | Système abonnement UI, module compte (favoris, historique), mode étudiant, convention stage
+Sprint | Semaines | Objectif | Membres | Livrables Clés
+Sprint 0 (Audit) | S1-S2 | Bilan existant, correctifs critiques, mise en place PostgreSQL | Tous | CDC validé, DB PostgreSQL opérationnelle, Jobartis/Emploi.cm corrigés
+Sprint 1 (Sources) | S3-S4 | 6 nouvelles sources d'ingestion | Danielle, Fares | Arbeitnow, WeWorkRemotely, Jooble, Findwork, BrighterMonday, Kek Emploi
+Sprint 2 (API & Auth+) | S5-S6 | API complète + abonnement + envoi email réel | Fares, Miguel | Stripe intégré, emails SMTP réels, routes premium protégées
+Sprint 3 (IA) | S7-S8 | Module IA : CV upload, extraction NLP, score matching | Danielle, Fares | POST /api/cv/upload, GET /api/cv/match fonctionnels
+Sprint 4 (Frontend Premium) | S9-S10 | UI premium, dark mode, toutes nouvelles pages | Ruth, Amadou, Miguel | Dashboard IA, suivi candidatures, mode étudiant, dark mode
+Sprint 5 (Tests & Deploy) | S11-S12 | Tests, CI/CD, déploiement production | Fares, Danielle | Coverage ≥70%, URL publique opérationnelle, CI/CD GitHub Actions
+Sprint 6 (Docs & Soutenance) | S13-S14 | Documentation finale, rapport, slides | Tous | Rapport final, slides présentation, vidéo démo
+ID | Risque | Prob. | Impact | Gravité | Stratégie d'Atténuation
+R1 | Blocage des scrapers HTML (Jobartis, Emploi.cm changent de structure) | Élevée | Moyen | Moyenne | Scrapers isolés (Pattern Strategy), monitoring automatique erreurs parsing, alertes Sentry
+R2 | Rate limits des APIs gratuites (Adzuna, Jooble) atteints | Élevée | Moyen | Moyenne | Cache Redis résultats (TTL 6h), retry exponentiel, répartition temporelle des appels
+R3 | Migration SQLite → PostgreSQL bloquante | Moyenne | Élevé | Élevée | Planifier migration Alembic dès Sprint 0, tests d'intégration DB, backup avant migration
+R4 | Module IA (NLP) trop lent pour la production | Moyenne | Moyen | Moyenne | Calcul scores en tâche background (Celery), cache résultats 1h, pagination offres matchées
+R5 | Retard de développement | Élevée | Élevé | Élevée | MVP strict : prioriser les fonctionnalités critiques, renoncer aux fonctionnalités 'Nice to have' si nécessaire
+R6 | Intégration Stripe compliquée pour FCFA | Moyenne | Moyen | Moyenne | Utiliser CinetPay (adapté Afrique FCFA) comme alternative, ou simuler paiement pour la soutenance
+R7 | Modèle NLP français insuffisant pour le contexte africain | Moyenne | Faible | Faible | Compléter le dictionnaire de compétences tech avec termes locaux, fallback sur matching par mots-clés
+Type de Test | Outil | Périmètre | Critère de Succès
+Tests Unitaires Backend | Pytest + pytest-cov | Services (deduplication, tech_filter, notifier), CRUD, scrapers individuels | Couverture ≥ 70% des fonctions critiques
+Tests Unitaires Frontend | Vitest + Testing Library | Composants JobCard, WatchlistCard, formulaires Login/Register | Tous les composants rendent sans erreur, événements déclenchés
+Tests d'Intégration | Pytest + httpx (async) | Chaîne complète : Ingestion → DB → API → Réponse JSON | Pipeline end-to-end sans erreur sur 3 sources
+Tests API | Swagger UI / Postman / HTTPie | Tous les endpoints listés en section 7.4 | Codes HTTP corrects, validation Pydantic, authentification JWT
+Tests de Performance | Locust (charge) | GET /api/jobs avec 50 utilisateurs simultanés | P95 < 200ms, aucune erreur 5xx
+Tests Fonctionnels (UAT) | Manuel + checklist | Parcours utilisateurs : Inscription, Recherche, Watchlist, Upload CV, Abonnement | Tous les parcours validés par l'encadreur
+Tests Sécurité | Manuel + OWASP checklist | Auth JWT, injection SQL, CORS, rate limiting | Aucune vulnérabilité critique
+Terme | Définition
+Agrégateur | Système collectant et centralisant des données provenant de multiples sources hétérogènes.
+API (Application Programming Interface) | Interface permettant la communication entre deux applications via des requêtes standardisées (REST, JSON).
+Scraping (Web Scraping) | Extraction automatique de données structurées depuis des pages web HTML.
+Parsing | Analyse syntaxique d'un document (HTML, XML, JSON) pour en extraire les informations structurées.
+Fuzzy Matching | Comparaison approximative de chaînes de caractères tolérant les fautes de frappe et variations mineures.
+Normalized Hash | Empreinte numérique unique (MD5) calculée sur les champs normalisés d'une offre pour détecter les doublons.
+JWT (JSON Web Token) | Standard de jetons d'authentification signés numériquement permettant la vérification stateless.
+TF-IDF | Term Frequency-Inverse Document Frequency — méthode statistique de vectorisation de texte pour le NLP.
+Cosine Similarity | Mesure de similarité entre deux vecteurs TF-IDF calculant l'angle entre eux (0 = différents, 1 = identiques).
+spaCy | Bibliothèque NLP industrielle open-source pour Python supportant l'extraction d'entités et l'analyse de texte.
+Freemium | Modèle économique combinant un accès gratuit (fonctionnalités de base) et des fonctionnalités avancées payantes.
+tsvector (PostgreSQL) | Type de données PostgreSQL pour l'indexation full-text permettant des recherches rapides dans les textes.
+MVP (Minimum Viable Product) | Version minimaliste d'un produit incluant uniquement les fonctionnalités essentielles pour une première mise en production.
+Celery | File de tâches asynchrones Python permettant l'exécution de traitements en arrière-plan (envoi d'emails, scraping).
+SPA (Single Page Application) | Application web dont le contenu est dynamiquement mis à jour sans rechargement complet de la page.
+FCFA | Franc CFA — monnaie officielle du Cameroun (1 EUR ≈ 655 FCFA).
+Acronyme | Signification
+API | Application Programming Interface
+SGBD | Système de Gestion de Base de Données
+UML | Unified Modeling Language
+JWT | JSON Web Token
+SPA | Single Page Application
+NLP | Natural Language Processing
+REST | Representational State Transfer
+ORM | Object-Relational Mapping
+CI/CD | Continuous Integration / Continuous Delivery
+MVP | Minimum Viable Product
+RGPD | Règlement Général sur la Protection des Données
+PCI-DSS | Payment Card Industry Data Security Standard
+TF-IDF | Term Frequency – Inverse Document Frequency
+FCFA | Franc de la Communauté Financière d'Afrique
+RSS | Really Simple Syndication
+CORS | Cross-Origin Resource Sharing
+SIGNATURES
+Fares (Chef de Projet / Dev Backend 1) : ________________________   Date : ________________
+Danielle (Dev Backend 2 – Ingestion) : ________________________   Date : ________________
+Ruth (Lead Frontend / Dev Front 1) : ________________________   Date : ________________
+Amadou (Dev Frontend 2) : ________________________   Date : ________________
+Miguel (Dev Frontend 3) : ________________________   Date : ________________
+
+Encadreur Académique (Mr Mbompieze) : ________________________   Date : ________________

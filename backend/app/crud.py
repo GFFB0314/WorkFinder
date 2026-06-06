@@ -262,7 +262,7 @@ def create_user(db: Session, email: str, password_hash: str, role: str = "user")
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-
+    return db_user
 # ============================================================================
 # Watchlist CRUD Operations
 # ============================================================================
@@ -317,4 +317,57 @@ def delete_watchlist(db: Session, watchlist_id: int, user_id: int) -> bool:
     db.delete(db_watchlist)
     db.commit()
     return True
+
+
+# ============================================================================
+# CV Profile CRUD Operations (Premium Feature)
+# ============================================================================
+
+def get_cv_profile_by_user(db: Session, user_id: int) -> Optional[models.CVProfile]:
+    """Retrieve CV profile for a user"""
+    return db.query(models.CVProfile).filter(models.CVProfile.user_id == user_id).first()
+
+def create_or_update_cv_profile(db: Session, user_id: int, parsed_cv: dict) -> models.CVProfile:
+    """Create or update a user's CV Profile (Upsert)"""
+    db_cv = db.query(models.CVProfile).filter(models.CVProfile.user_id == user_id).first()
+    
+    if db_cv:
+        # Update
+        db_cv.raw_text = parsed_cv.get("raw_text")
+        db_cv.skills = parsed_cv.get("skills")
+        db_cv.experience_level = parsed_cv.get("experience_level")
+        db_cv.updated_at = datetime.utcnow()
+    else:
+        # Create
+        db_cv = models.CVProfile(
+            user_id=user_id,
+            raw_text=parsed_cv.get("raw_text"),
+            skills=parsed_cv.get("skills"),
+            experience_level=parsed_cv.get("experience_level")
+        )
+        db.add(db_cv)
+        
+    db.commit()
+    db.refresh(db_cv)
+    return db_cv
+
+
+# ============================================================================
+# Subscription CRUD Operations
+# ============================================================================
+
+def update_user_subscription(db: Session, user_id: int, plan: str, expires_at: Optional[datetime]) -> Optional[models.User]:
+    """Update user's subscription tier"""
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        return None
+        
+    db_user.subscription_status = plan
+    db_user.subscription_expires_at = expires_at
+    db_user.updated_at = datetime.utcnow()
+    
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 
