@@ -30,6 +30,34 @@ SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DB_PATH}")
 if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
     SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+def create_database_if_not_exists(url: str):
+    """Programmatically create PostgreSQL database if it does not exist"""
+    if "postgresql" in url:
+        try:
+            from sqlalchemy import create_engine, text
+            # Split the URL to connect to the default 'postgres' database
+            base_url, db_name = url.rsplit('/', 1)
+            if '?' in db_name:
+                db_name, query = db_name.split('?', 1)
+                default_url = f"{base_url}/postgres?{query}"
+            else:
+                default_url = f"{base_url}/postgres"
+            
+            temp_engine = create_engine(default_url, isolation_level="AUTOCOMMIT")
+            with temp_engine.connect() as conn:
+                result = conn.execute(text(f"SELECT 1 FROM pg_database WHERE datname='{db_name}'"))
+                exists = result.scalar()
+                if not exists:
+                    print(f"Database '{db_name}' does not exist. Creating programmatically...")
+                    conn.execute(text(f"CREATE DATABASE {db_name}"))
+                    print(f"Database '{db_name}' created successfully!")
+            temp_engine.dispose()
+        except Exception as e:
+            print("Warning: Auto-creation of database failed (might already exist or connection issue):", e)
+
+# Trigger auto-creation if using postgres
+create_database_if_not_exists(SQLALCHEMY_DATABASE_URL)
+
 connect_args = {}
 if "sqlite" in SQLALCHEMY_DATABASE_URL:
     connect_args = {"check_same_thread": False}

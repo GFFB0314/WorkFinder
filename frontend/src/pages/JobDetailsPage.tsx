@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { MapPin, Building2, Calendar, ExternalLink, ArrowLeft, CheckCircle2, AlertTriangle, Lock, Brain, Sparkles } from "lucide-react";
+import { useParams, Link } from "react-router-dom";
+import { MapPin, Building2, Calendar, ExternalLink, ArrowLeft, CheckCircle2, AlertTriangle, Brain, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import api from "../lib/api";
@@ -18,7 +18,6 @@ interface MatchReport {
 
 export function JobDetailsPage() {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [job, setJob] = useState<Job | null>(null);
     const [loading, setLoading] = useState(true);
     const [matchReport, setMatchReport] = useState<MatchReport | null>(null);
@@ -26,8 +25,7 @@ export function JobDetailsPage() {
     const [matchError, setMatchError] = useState("");
 
     const token = localStorage.getItem("token");
-    const subStatus = localStorage.getItem("subStatus");
-    const isPremium = !!token && (subStatus === "premium" || subStatus === "student");
+    const isLoggedIn = !!token;
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -43,9 +41,9 @@ export function JobDetailsPage() {
         fetchJob();
     }, [id]);
 
-    // Fetch AI match report for premium users
+    // Fetch AI match report for authenticated candidates.
     useEffect(() => {
-        if (!isPremium || !job) return;
+        if (!isLoggedIn || !job) return;
 
         const fetchMatch = async () => {
             setMatchLoading(true);
@@ -65,7 +63,7 @@ export function JobDetailsPage() {
             }
         };
         fetchMatch();
-    }, [isPremium, job]);
+    }, [isLoggedIn, job]);
 
     if (loading) {
         return (
@@ -266,7 +264,7 @@ export function JobDetailsPage() {
                         </div>
                     </div>
 
-                    {isPremium ? (
+                    {isLoggedIn ? (
                         <div className="px-8 pb-8">
                             {matchLoading && (
                                 <div className="flex flex-col items-center justify-center py-12">
@@ -358,56 +356,18 @@ export function JobDetailsPage() {
                             )}
                         </div>
                     ) : (
-                        /* Paywall Overlay for Free Users */
-                        <div className="relative px-8 pb-8">
-                            {/* Blurred fake content */}
-                            <div className="filter blur-sm select-none pointer-events-none opacity-50">
-                                <div className="grid md:grid-cols-[auto_1fr] gap-8 items-start py-4">
-                                    <div className="flex justify-center">
-                                        <div className="h-[120px] w-[120px] rounded-full bg-slate-100 dark:bg-slate-800" />
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div className="h-4 w-48 rounded bg-slate-100 dark:bg-slate-800" />
-                                        <div className="flex gap-2">
-                                            <div className="h-7 w-16 rounded-lg bg-emerald-100 dark:bg-emerald-950/30" />
-                                            <div className="h-7 w-20 rounded-lg bg-emerald-100 dark:bg-emerald-950/30" />
-                                            <div className="h-7 w-14 rounded-lg bg-emerald-100 dark:bg-emerald-950/30" />
-                                        </div>
-                                        <div className="h-4 w-40 rounded bg-slate-100 dark:bg-slate-800" />
-                                        <div className="flex gap-2">
-                                            <div className="h-7 w-18 rounded-lg bg-amber-100 dark:bg-amber-950/30" />
-                                            <div className="h-7 w-22 rounded-lg bg-amber-100 dark:bg-amber-950/30" />
-                                        </div>
-                                    </div>
-                                </div>
+                        /* Login prompt for anonymous users */
+                        <div className="px-8 pb-8 text-center py-12">
+                            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4 mx-auto shadow-xl shadow-indigo-500/20">
+                                <Brain className="h-7 w-7 text-white" />
                             </div>
-
-                            {/* Lock overlay */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] rounded-b-2xl">
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 200 }}
-                                    className="flex flex-col items-center text-center px-8"
-                                >
-                                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/20">
-                                        <Lock className="h-7 w-7 text-white" />
-                                    </div>
-                                    <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                                        Analyse IA de Compatibilité
-                                    </h4>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 max-w-sm">
-                                        Passez à Premium pour découvrir votre score de compatibilité avec cette offre !
-                                    </p>
-                                    <Button
-                                        onClick={() => navigate("/dashboard?upgrade=true")}
-                                        className="rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-bold shadow-xl shadow-purple-500/20 px-8 py-3 cursor-pointer pulse-glow"
-                                    >
-                                        <Sparkles className="h-4 w-4 mr-2" />
-                                        Débloquer Premium
-                                    </Button>
-                                </motion.div>
-                            </div>
+                            <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Connectez-vous pour voir votre score</h4>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 max-w-sm mx-auto">
+                                Uploadez votre CV et obtenez votre score de compatibilité IA avec cette offre.
+                            </p>
+                            <Button asChild className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
+                                <Link to="/login">Se connecter</Link>
+                            </Button>
                         </div>
                     )}
                 </motion.div>

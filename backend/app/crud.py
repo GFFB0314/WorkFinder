@@ -242,6 +242,9 @@ def delete_source(db: Session, source_id: int) -> bool:
     if not db_source:
         return False
     
+    db.delete(db_source)
+    db.commit()
+    return True
 
 # ============================================================================
 # User CRUD Operations
@@ -253,7 +256,7 @@ def get_user(db: Session, user_id: int) -> Optional[models.User]:
 def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
     return db.query(models.User).filter(models.User.email == email).first()
 
-def create_user(db: Session, email: str, password_hash: str, role: str = "user") -> models.User:
+def create_user(db: Session, email: str, password_hash: str, role: str = "candidate") -> models.User:
     db_user = models.User(
         email=email, 
         password_hash=password_hash,
@@ -263,6 +266,53 @@ def create_user(db: Session, email: str, password_hash: str, role: str = "user")
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def create_user_with_profiles(db: Session, user_in: schemas.UserCreate, password_hash: str) -> models.User:
+    """Create a new user with role-specific profile entries in a single transaction"""
+    db_user = models.User(
+        email=user_in.email,
+        password_hash=password_hash,
+        role=user_in.role
+    )
+    db.add(db_user)
+    db.flush()  # Populates db_user.id
+    
+    if user_in.role == "candidate":
+        if user_in.is_student and user_in.student_matricule:
+            db_student = models.StudentProfile(
+                user_id=db_user.id,
+                student_matricule=user_in.student_matricule,
+                school_email=user_in.school_email or user_in.email,
+                department=user_in.department or "Non spécifié",
+                graduation_year=user_in.graduation_year or datetime.utcnow().year,
+                is_verified=False,
+                university_id=user_in.university_id
+            )
+            db.add(db_student)
+            
+    elif user_in.role == "recruiter":
+        db_company = models.CompanyProfile(
+            user_id=db_user.id,
+            company_name=user_in.company_name or "Nouvelle Entreprise",
+            company_website=user_in.company_website,
+            company_industry=user_in.company_industry or "IT"
+        )
+        db.add(db_company)
+        
+    elif user_in.role == "university_admin":
+        db_uni = models.University(
+            user_id=db_user.id,
+            name=user_in.university_name or "Nouvelle Université",
+            acronym=user_in.university_acronym or "UNI",
+            domain=user_in.university_domain or user_in.email.split("@")[-1],
+            subscription_status="inactive"
+        )
+        db.add(db_uni)
+        
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 # ============================================================================
 # Watchlist CRUD Operations
 # ============================================================================
@@ -320,7 +370,7 @@ def delete_watchlist(db: Session, watchlist_id: int, user_id: int) -> bool:
 
 
 # ============================================================================
-# CV Profile CRUD Operations (Premium Feature)
+# CV Profile CRUD Operations
 # ============================================================================
 
 def get_cv_profile_by_user(db: Session, user_id: int) -> Optional[models.CVProfile]:
@@ -350,24 +400,4 @@ def create_or_update_cv_profile(db: Session, user_id: int, parsed_cv: dict) -> m
     db.commit()
     db.refresh(db_cv)
     return db_cv
-
-
-# ============================================================================
-# Subscription CRUD Operations
-# ============================================================================
-
-def update_user_subscription(db: Session, user_id: int, plan: str, expires_at: Optional[datetime]) -> Optional[models.User]:
-    """Update user's subscription tier"""
-    db_user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not db_user:
-        return None
-        
-    db_user.subscription_status = plan
-    db_user.subscription_expires_at = expires_at
-    db_user.updated_at = datetime.utcnow()
-    
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
 

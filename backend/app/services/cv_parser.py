@@ -12,20 +12,29 @@ from typing import List, Dict, Any
 import pypdf
 import docx
 
-# Try loading spaCy
-nlp = None
+# Try loading spaCy models
+nlp_fr = None
+nlp_en = None
 try:
     import spacy
+    # Try loading French
     try:
-        nlp = spacy.load("fr_core_news_sm")
+        nlp_fr = spacy.load("fr_core_news_sm")
     except Exception:
-        # Inline download for ease of deployment and developer setup
         print("[CV Parser] Downloading fr_core_news_sm model...")
         subprocess.run([sys.executable, "-m", "spacy", "download", "fr_core_news_sm"], check=True)
-        nlp = spacy.load("fr_core_news_sm")
+        nlp_fr = spacy.load("fr_core_news_sm")
+        
+    # Try loading English
+    try:
+        nlp_en = spacy.load("en_core_web_sm")
+    except Exception:
+        print("[CV Parser] Downloading en_core_web_sm model...")
+        subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], check=True)
+        nlp_en = spacy.load("en_core_web_sm")
 except Exception as e:
     print(f"[CV Parser] spaCy model load failed, falling back to regex: {e}")
-    nlp = None
+
 
 # A rich, comprehensive tech skills dictionary covering multiple domains
 SKILLS_DICTIONARY: List[str] = [
@@ -135,8 +144,24 @@ def parse_cv_bytes(file_bytes: bytes, filename: str) -> Dict[str, Any]:
             except Exception:
                 raw_text = ""
 
+    # Try LLM-based parsing if API key is set
+    from app.services.llm_service import parse_cv_with_llm
+    if raw_text:
+        try:
+            llm_result = parse_cv_with_llm(raw_text)
+            if llm_result:
+                return {
+                    "raw_text": raw_text,
+                    "skills": llm_result.get("skills", []),
+                    "experience_level": llm_result.get("experience_level", "junior"),
+                    "entities": llm_result.get("entities", {"ORG": [], "LOC": [], "PER": []}),
+                    "experience_sentences": llm_result.get("experience_sentences", [])
+                }
+        except Exception as e:
+            print(f"[CV Parser] LLM extraction error: {e}, falling back to local parsing.")
+
     # spaCy-based parsing
-    if nlp and raw_text:
+    if (nlp_fr or nlp_en) and raw_text:
         try:
             structured_info = extract_structured_info_with_spacy(raw_text)
             return {
@@ -161,6 +186,13 @@ def parse_cv_bytes(file_bytes: bytes, filename: str) -> Dict[str, Any]:
         "experience_sentences": []
     }
 
+def detect_language(text: str) -> str:
+    """Detect if text is English or French based on simple common stopwords"""
+    text_lower = text.lower()
+    en_words = len(re.findall(r"\b(the|and|of|with|for|in|to|is|at|on|from)\b", text_lower))
+    fr_words = len(re.findall(r"\b(le|la|et|dans|pour|avec|en|a|sur|du|des|est)\b", text_lower))
+    return "en" if en_words > fr_words else "fr"
+
 def extract_structured_info_with_spacy(text: str) -> Dict[str, Any]:
     """
     Use spaCy NLP pipeline to clean, tokenize, and extract structural information:
@@ -169,7 +201,15 @@ def extract_structured_info_with_spacy(text: str) -> Dict[str, Any]:
     - Technical skills matching token lemmas & chunks
     - Experience level inference
     """
-    doc = nlp(text)
+    lang = detect_language(text)
+    selected_nlp = nlp_en if lang == "en" else nlp_fr
+    if not selected_nlp:
+        selected_nlp = nlp_fr or nlp_en
+        
+    if not selected_nlp:
+        raise ValueError("No spaCy models loaded in cv_parser")
+        
+    doc = selected_nlp(text)
     
     # Entity extraction
     entities = {"ORG": [], "LOC": [], "PER": []}

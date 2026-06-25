@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 
 from app.database import engine, Base
 from app import models
-from app.routers import jobs, sources, auth, watchlists, cv
+from app.routers import jobs, sources, auth, watchlists, cv, recruit, campus, payments
 
 
 # Lifespan context manager for startup/shutdown events
@@ -30,6 +30,22 @@ async def lifespan(app: FastAPI):
     print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
     print("Database tables created successfully!")
+    
+    # Trigger background scraping if database is empty
+    from app.database import SessionLocal
+    db = SessionLocal()
+    try:
+        from app.models import Job
+        job_count = db.query(Job).count()
+        if job_count == 0:
+            print("Database is empty. Starting background thread to fetch initial jobs...")
+            import threading
+            from run_scraper import run_scrapers
+            threading.Thread(target=run_scrapers, kwargs={"limit": 5}, daemon=True).start()
+    except Exception as e:
+        print("Failed to start initial scraper:", e)
+    finally:
+        db.close()
     
     yield
     
@@ -78,6 +94,9 @@ app.include_router(sources.router)
 app.include_router(auth.router)
 app.include_router(watchlists.router)
 app.include_router(cv.router)
+app.include_router(recruit.router)
+app.include_router(campus.router)
+app.include_router(payments.router)
 
 
 # Health check endpoint

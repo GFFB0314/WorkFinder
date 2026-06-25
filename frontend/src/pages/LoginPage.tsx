@@ -27,7 +27,17 @@ export function LoginPage() {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
             localStorage.setItem("token", response.data.access_token);
-            navigate("/dashboard");
+            
+            // Get user profile to determine role-based routing
+            const meResponse = await api.get("/auth/me");
+            const role = meResponse.data.role;
+            if (role === "recruiter") {
+                navigate("/recruiter/dashboard");
+            } else if (role === "university_admin") {
+                navigate("/campus/dashboard");
+            } else {
+                navigate("/dashboard");
+            }
         } catch (error: any) {
             console.error("Login failed", error);
             let message = "Échec de la connexion. Vérifiez votre email et votre mot de passe.";

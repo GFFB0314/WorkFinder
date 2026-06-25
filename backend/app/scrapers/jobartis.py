@@ -92,7 +92,7 @@ def fetch_jobartis_jobs(limit: int = 10) -> list[dict]:
                 "company": "KmerTech Solutions",
                 "location": "Akwa, Douala",
                 "remote": False,
-                "description": "Nous recherchons un développeur Full-Stack compétent pour concevoir des plateformes web robustes. Technologies : Python, FastAPI, React.",
+                "description": "Nous recherchons un développeur Full-Stack compétent pour concevoir des plateformes web robustes. Technologies : Python, FastAPI, React, PostgreSQL.",
                 "url": "https://jobartiscameroun.com/jobs/kmertech-fullstack",
                 "posted_at": None,
                 "source": "Jobartis",
@@ -103,7 +103,7 @@ def fetch_jobartis_jobs(limit: int = 10) -> list[dict]:
                 "company": "Cameroon Mobile Telecom",
                 "location": "Yaoundé, Cameroun",
                 "remote": True,
-                "description": "Gestion des infrastructures cloud Azure, automatisation CI/CD, scripting Python, Kubernetes.",
+                "description": "Gestion des infrastructures cloud Azure, automatisation CI/CD, scripting Python, Kubernetes. Expérience de 3 ans minimum requise.",
                 "url": "https://jobartiscameroun.com/jobs/cmt-devops",
                 "posted_at": None,
                 "source": "Jobartis",
@@ -114,17 +114,51 @@ def fetch_jobartis_jobs(limit: int = 10) -> list[dict]:
                 "company": "Njangi Finance SA",
                 "location": "Bonanjo, Douala",
                 "remote": False,
-                "description": "Analyse des données transactionnelles, modélisation prédictive, conception de tableaux de bord BI avec Power BI et SQL.",
+                "description": "Analyse des données transactionnelles, modélisation prédictive, conception de tableaux de bord BI avec Power BI et SQL Server.",
                 "url": "https://jobartiscameroun.com/jobs/njangi-data-analyst",
                 "posted_at": None,
                 "source": "Jobartis",
                 "raw_data": {"mock": True}
-            }
+            },
+            {
+                "title": "Développeur Mobile Flutter",
+                "company": "AfriPay Technologies",
+                "location": "Douala, Cameroun",
+                "remote": True,
+                "description": "Développement d'une application fintech Mobile Money sur Flutter. Intégration des APIs MTN MoMo et Orange Money.",
+                "url": "https://jobartiscameroun.com/jobs/afripay-flutter",
+                "posted_at": None,
+                "source": "Jobartis",
+                "raw_data": {"mock": True}
+            },
+            {
+                "title": "Administrateur Systèmes Linux",
+                "company": "Camtel Digital",
+                "location": "Yaoundé, Cameroun",
+                "remote": False,
+                "description": "Administration de serveurs Linux (Debian/CentOS), gestion des firewalls, supervision réseau avec Zabbix, automatisation Ansible.",
+                "url": "https://jobartiscameroun.com/jobs/camtel-sysadmin",
+                "posted_at": None,
+                "source": "Jobartis",
+                "raw_data": {"mock": True}
+            },
+            {
+                "title": "Ingénieur Machine Learning",
+                "company": "AI Cameroun Lab",
+                "location": "Douala, Cameroun",
+                "remote": True,
+                "description": "Conception et déploiement de modèles ML (scikit-learn, TensorFlow). Travail sur des jeux de données africains. MLOps avec MLflow.",
+                "url": "https://jobartiscameroun.com/jobs/ai-cameroun-ml",
+                "posted_at": None,
+                "source": "Jobartis",
+                "raw_data": {"mock": True}
+            },
         ]
         # Filter for safety (they are tech jobs anyway)
         normalized_jobs = [j for j in mock_jobs if is_tech_job(j)][:limit]
         
     return normalized_jobs
+
 
 if __name__ == "__main__":
     results = fetch_jobartis_jobs(limit=5)

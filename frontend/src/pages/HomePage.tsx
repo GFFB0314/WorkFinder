@@ -52,9 +52,6 @@ export function HomePage() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalJobs, setTotalJobs] = useState(0);
 
-    const subStatus = localStorage.getItem("subStatus");
-    const isPremium = subStatus === "premium" || subStatus === "student";
-
     const debouncedSearch = useDebounce(search, 300);
     const debouncedLocation = useDebounce(location, 300);
 
@@ -309,7 +306,7 @@ export function HomePage() {
                                     {jobs.length > 0 ? (
                                         jobs.map((job) => (
                                             <motion.div key={job.id} variants={item}>
-                                                <JobCard job={job} isPremium={isPremium} />
+                                                <JobCard job={job} />
                                             </motion.div>
                                         ))
                                     ) : (

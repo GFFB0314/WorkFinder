@@ -37,6 +37,39 @@ ADZUNA_API_URL = "https://api.adzuna.com/v1/api/jobs"
 ADZUNA_APP_ID = os.getenv("ADZUNA_APP_ID", "placeholder_id")
 ADZUNA_APP_KEY = os.getenv("ADZUNA_APP_KEY", "placeholder_key")
 
+REMOTE_KEYWORDS = (
+    "remote",
+    "work from home",
+    "working from home",
+    "home based",
+    "home-based",
+    "telecommute",
+    "telecommuting",
+    "distributed",
+    "anywhere",
+    "worldwide",
+    "fully remote",
+    "100% remote",
+    "teletravail",
+    "télétravail",
+)
+
+
+def is_remote_adzuna_job(job: Dict[str, Any]) -> bool:
+    """Return True only when an Adzuna posting clearly describes remote work."""
+    if job.get("remote") is True:
+        return True
+
+    location = job.get("location", {}) or {}
+    searchable_parts = [
+        job.get("title") or "",
+        job.get("description") or "",
+        location.get("display_name") or "",
+        job.get("category", {}).get("label") or "",
+    ]
+    searchable_text = " ".join(searchable_parts).lower()
+    return any(keyword in searchable_text for keyword in REMOTE_KEYWORDS)
+
 def fetch_adzuna_jobs(country: str = "gb", limit: int = 10) -> List[Dict[str, Any]]:
     """
     Fetches jobs from Adzuna API for a specific country.
@@ -75,11 +108,16 @@ def fetch_adzuna_jobs(country: str = "gb", limit: int = 10) -> List[Dict[str, An
             if not is_tech_job(normalized_job_temp):
                 continue
 
+            # WorkFinder policy: international Adzuna jobs are eligible only
+            # when the posting explicitly indicates remote work.
+            if not is_remote_adzuna_job(job):
+                continue
+
             normalized_job = {
                 "title": job.get("title"),
                 "company": job.get("company", {}).get("display_name"),
                 "location": job.get("location", {}).get("display_name"),
-                "remote": False, # Adzuna data may vary, defaulting to False
+                "remote": True,
                 "description": job.get("description"),
                 "url": job.get("redirect_url"),
                 "posted_at": job.get("created"),

@@ -10,18 +10,44 @@ import re
 from app.models import Job, CVProfile
 from app.services.cv_parser import extract_skills_from_text_regex, infer_experience_level_regex
 
-# Try loading SentenceTransformers
+# Try loading SentenceTransformers lazily
 model = None
-try:
-    from sentence_transformers import SentenceTransformer, util
-    print("[Matching Engine] Initializing SentenceTransformer (paraphrase-multilingual-MiniLM-L12-v2)...")
-    # paraphrase-multilingual-MiniLM-L12-v2 supports 50+ languages, including French and English
-    model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-except Exception as e:
-    print(f"[Matching Engine] SentenceTransformer model load failed, falling back to keyword logic: {e}")
-    model = None
+util_module = None
+
+def get_sentence_transformer():
+    global model, util_module
+    if model is None:
+        try:
+            from sentence_transformers import SentenceTransformer, util
+            print("[Matching Engine] Initializing SentenceTransformer (paraphrase-multilingual-MiniLM-L12-v2) lazily...")
+            model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+            util_module = util
+        except Exception as e:
+            print(f"[Matching Engine] SentenceTransformer model load failed, falling back to keyword logic: {e}")
+            model = False # Disable subsequent retries
+    return model if model else None
 
 def calculate_compatibility(cv: CVProfile, job: Job) -> Dict[str, Any]:
+    # Try LLM-based matching if API key is set
+    from app.services.llm_service import match_job_with_llm
+    import os
+    if os.getenv("GEMINI_API_KEY") and cv.raw_text:
+        try:
+            llm_result = match_job_with_llm(
+                cv_text=cv.raw_text,
+                job_title=job.title,
+                job_description=job.description or ""
+            )
+            if llm_result:
+                return {
+                    "compatibility_score": int(llm_result.get("score", 50)),
+                    "matching_skills": llm_result.get("matched_skills", []),
+                    "missing_skills": llm_result.get("missing_skills", []),
+                    "experience_fit": bool(llm_result.get("experience_fit", True)),
+                    "explanation": llm_result.get("explanation", "Match calculé via IA.")
+                }
+        except Exception as e:
+            print(f"[Matching Engine] LLM matching error: {e}, falling back to local matching.")
     """
     Computes a deep compatibility report between a CVProfile and a Job.
     Uses Sentence Transformers for semantic embedding similarity + explicit experience check.
@@ -80,7 +106,8 @@ def calculate_compatibility(cv: CVProfile, job: Job) -> Dict[str, Any]:
     # 3. Calculate score (70% semantic skills, 30% experience)
     skill_score = 0.0
     
-    if model:
+    transformer = get_sentence_transformer()
+    if transformer:
         try:
             # Formulate text representation for semantic embedding
             cv_text = f"Expérience: {cv_exp}. Compétences: {', '.join(cv_skills_list)}. CV: {cv.raw_text or ''}"
@@ -91,10 +118,10 @@ def calculate_compatibility(cv: CVProfile, job: Job) -> Dict[str, Any]:
             job_text = job_text[:1500]
             
             # Encode texts to embeddings
-            embeddings = model.encode([cv_text, job_text], convert_to_tensor=True)
+            embeddings = transformer.encode([cv_text, job_text], convert_to_tensor=True)
             
             # Cosine similarity
-            cosine_sim = float(util.cos_sim(embeddings[0], embeddings[1])[0][0])
+            cosine_sim = float(util_module.cos_sim(embeddings[0], embeddings[1])[0][0])
             
             # Normalize cosine similarity (usually sits between 0.1 and 0.85)
             # Map [0.2, 0.8] range to [0, 100]

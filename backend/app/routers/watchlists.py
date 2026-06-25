@@ -11,38 +11,42 @@ router = APIRouter(
     tags=["watchlists"],
 )
 
+WATCHLIST_LIMIT = 7
+
+
 @router.get("", response_model=List[schemas.WatchlistResponse])
 def read_watchlists(
-    skip: int = 0, 
-    limit: int = 100, 
+    skip: int = 0,
+    limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(security.get_current_user)
+    current_user: models.User = Depends(security.get_current_user),
 ):
     """List all watchlists for the current user."""
     return crud.get_watchlists_by_user(db, user_id=current_user.id, skip=skip, limit=limit)
+
 
 @router.post("", response_model=schemas.WatchlistResponse, status_code=201)
 def create_watchlist(
     watchlist: schemas.WatchlistCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(security.get_current_user)
+    current_user: models.User = Depends(security.get_current_user),
 ):
     """Create a new watchlist with comprehensive filtering options."""
-    # Freemium Gating Check
     watchlist_count = db.query(models.Watchlist).filter(models.Watchlist.user_id == current_user.id).count()
-    if current_user.subscription_status not in ["premium", "student"] and watchlist_count >= 3:
+    if watchlist_count >= WATCHLIST_LIMIT:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Le forfait gratuit est limité à 3 watchlists d'offres. Veuillez passer au forfait Premium pour des alertes illimitées !"
+            detail=f"Chaque utilisateur peut creer jusqu'a {WATCHLIST_LIMIT} watchlists.",
         )
     return crud.create_watchlist(db, watchlist=watchlist, user_id=current_user.id)
+
 
 @router.put("/{watchlist_id}", response_model=schemas.WatchlistResponse)
 def update_watchlist(
     watchlist_id: int,
     watchlist: schemas.WatchlistUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(security.get_current_user)
+    current_user: models.User = Depends(security.get_current_user),
 ):
     """Update an existing watchlist."""
     updated = crud.update_watchlist(db, watchlist_id=watchlist_id, watchlist=watchlist, user_id=current_user.id)
@@ -50,11 +54,12 @@ def update_watchlist(
         raise HTTPException(status_code=404, detail="Watchlist not found")
     return updated
 
+
 @router.delete("/{watchlist_id}", status_code=204)
 def delete_watchlist(
     watchlist_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(security.get_current_user)
+    current_user: models.User = Depends(security.get_current_user),
 ):
     """Delete a watchlist."""
     success = crud.delete_watchlist(db, watchlist_id=watchlist_id, user_id=current_user.id)

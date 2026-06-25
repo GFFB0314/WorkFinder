@@ -45,6 +45,10 @@ def fetch_arbeitnow_jobs(limit: int = 10) -> list[dict]:
             
             if not is_tech_job(normalized_job_temp):
                 continue
+            
+            # International sources only show remote jobs (Cameroon platform policy)
+            if not remote:
+                continue
                 
             normalized_job = {
                 "title": title,

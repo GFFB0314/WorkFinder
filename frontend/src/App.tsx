@@ -4,6 +4,8 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { JobDetailsPage } from "./pages/JobDetailsPage";
 import DashboardPage from "./pages/DashboardPage";
+import RecruiterDashboard from "./pages/RecruiterDashboard";
+import CampusDashboard from "./pages/CampusDashboard";
 
 
 
@@ -15,6 +17,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
+        <Route path="/campus/dashboard" element={<CampusDashboard />} />
         <Route path="/jobs/:id" element={<JobDetailsPage />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
@@ -23,3 +27,4 @@ function App() {
 }
 
 export default App
+

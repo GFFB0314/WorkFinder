@@ -94,6 +94,90 @@ class SourceStatusUpdate(BaseModel):
 
 
 # ============================================================================
+# WorkFinder V3 Role-Specific Schemas
+# ============================================================================
+
+class StudentProfileBase(BaseModel):
+    student_matricule: str
+    school_email: EmailStr
+    department: str
+    graduation_year: int
+    is_verified: bool = False
+
+
+class StudentProfileResponse(StudentProfileBase):
+    id: int
+    user_id: int
+    university_id: Optional[int] = None
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompanyProfileBase(BaseModel):
+    company_name: str
+    company_website: Optional[str] = None
+    company_industry: Optional[str] = None
+
+
+class CompanyProfileResponse(CompanyProfileBase):
+    id: int
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UniversityBase(BaseModel):
+    name: str
+    acronym: str
+    domain: str
+    subscription_status: str = "inactive"
+
+
+class UniversityResponse(UniversityBase):
+    id: int
+    user_id: Optional[int] = None
+    subscription_expires_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TransactionBase(BaseModel):
+    transaction_ref: str
+    amount: int
+    status: str = "pending"
+
+
+class TransactionResponse(TransactionBase):
+    id: int
+    university_id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class JobApplicationBase(BaseModel):
+    job_id: int
+    matching_score: Optional[int] = None
+    status: str = "applied"
+
+
+class JobApplicationResponse(JobApplicationBase):
+    id: int
+    candidate_id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ============================================================================
 # User Schemas
 # ============================================================================
 
@@ -103,23 +187,45 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    """Schema for creating a new user"""
+    """Schema for creating a new user with dynamic role profiles"""
     password: str = Field(..., min_length=8, description="User password (min 8 characters)")
+    role: str = Field(default="candidate", description="User role: candidate, recruiter, university_admin")
+    
+    # Candidate / Student fields
+    is_student: bool = Field(default=False)
+    student_matricule: Optional[str] = None
+    school_email: Optional[EmailStr] = None
+    department: Optional[str] = None
+    graduation_year: Optional[int] = None
+    university_id: Optional[int] = None
+    
+    # Recruiter fields
+    company_name: Optional[str] = None
+    company_website: Optional[str] = None
+    company_industry: Optional[str] = None
+    
+    # University Admin fields
+    university_name: Optional[str] = None
+    university_acronym: Optional[str] = None
+    university_domain: Optional[str] = None
 
 
 class UserResponse(UserBase):
     """Schema for user response"""
     id: int
     role: str
-    subscription_status: str
-    subscription_expires_at: Optional[datetime] = None
     created_at: datetime
+    
+    # Optional Profile attachments
+    student_profile: Optional[StudentProfileResponse] = None
+    company_profile: Optional[CompanyProfileResponse] = None
+    university_profile: Optional[UniversityResponse] = None
     
     model_config = ConfigDict(from_attributes=True)
 
 
 # ============================================================================
-# CV Profile Schemas (Premium Feature)
+# CV Profile Schemas
 # ============================================================================
 
 class CVProfileBase(BaseModel):
@@ -127,9 +233,11 @@ class CVProfileBase(BaseModel):
     skills: List[str] = Field(default=[], description="Extracted tech skills")
     experience_level: Optional[str] = Field(None, description="Inferred experience level (junior, mid, senior, lead)")
 
+
 class CVProfileCreate(CVProfileBase):
     """Schema for creating a CV Profile"""
     raw_text: Optional[str] = Field(None, description="Extracted CV raw text")
+
 
 class CVProfileResponse(CVProfileBase):
     """Schema for CV profile response"""
@@ -140,26 +248,6 @@ class CVProfileResponse(CVProfileBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-
-
-# ============================================================================
-# Subscription & Payment Schemas
-# ============================================================================
-
-class SubscriptionRequest(BaseModel):
-    """Schema for simulating premium subscription purchase"""
-    plan: str = Field(..., description="Target plan: 'premium' or 'student'")
-    payment_method: str = Field(..., description="Target method: 'momo_mtn', 'momo_orange', or 'card'")
-    phone_number: Optional[str] = Field(None, description="Mobile Money number (required if MoMo selected)")
-    card_number: Optional[str] = Field(None, description="Card number (optional)")
-
-class SubscriptionResponse(BaseModel):
-    """Schema for subscription response"""
-    status: str
-    message: str
-    plan: str
-    subscription_status: str
-    subscription_expires_at: datetime
 
 
 # ============================================================================
