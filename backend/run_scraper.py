@@ -46,20 +46,24 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from app.database import SessionLocal, init_db
 from app import crud, models, schemas
 from app.scrapers.remotive import fetch_remotive_jobs
-from app.scrapers.adzuna import fetch_adzuna_jobs
 from app.scrapers.jobartis import fetch_jobartis_jobs
 from app.scrapers.emploicm import fetch_emploicm_jobs
-from app.scrapers.weworkremotely import fetch_weworkremotely_jobs
-from app.scrapers.arbeitnow import fetch_arbeitnow_jobs
+
+# DISABLED (2026-06): Adzuna, WeWorkRemotely, Arbeitnow removed from the
+# registry. WorkFinder policy requires that foreign/international jobs be
+# shown only when verifiably remote-eligible for a candidate in Cameroon.
+# None of these three sources expose a candidate-eligibility field in their
+# API/feed response (only a generic "remote" boolean describing work
+# arrangement, not who may apply) -- so eligibility cannot be verified for
+# them. Re-enabling requires either: (a) the source adding eligibility data,
+# or (b) a separate, explicitly-flagged "unverified eligibility" display
+# path -- not silent inclusion. See app/services/geo_eligibility.py.
 
 # Source Registry
 SOURCES = {
     "Remotive": {"func": fetch_remotive_jobs, "type": "api", "url": "https://remotive.com"},
-    "Adzuna": {"func": fetch_adzuna_jobs, "type": "api", "url": "https://adzuna.com"},
     "Jobartis": {"func": fetch_jobartis_jobs, "type": "html", "url": "https://jobartiscameroun.com"},
     "Emploi.cm": {"func": fetch_emploicm_jobs, "type": "html", "url": "https://emploi.cm"},
-    "WeWorkRemotely": {"func": fetch_weworkremotely_jobs, "type": "rss", "url": "https://weworkremotely.com"},
-    "Arbeitnow": {"func": fetch_arbeitnow_jobs, "type": "api", "url": "https://arbeitnow.com"},
 }
 
 def get_or_create_source(db: Session, name: str, data: dict) -> models.Source:
